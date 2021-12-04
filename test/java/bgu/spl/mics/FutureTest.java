@@ -6,7 +6,7 @@ import org.junit.Before;
 import static org.junit.jupiter.api.Assertions.*;
 
 class FutureTest {
-    private static Future<String> future;
+    private Future<String> future;
     @Before
     public void setUp(){
         future = new Future<>();
@@ -14,10 +14,12 @@ class FutureTest {
 
     @Test
     public void testGet() {
-        assertFalse(future.isDone());
-        future.resolve("result");
-        future.get();
+        Thread t = new Thread(()->future.get());
+        t.start();
+        String result = "result";
+        future.resolve(result);
         assertTrue(future.isDone());
+        assertEquals(future.get(),result);
     }
 
     @Test
@@ -25,7 +27,7 @@ class FutureTest {
         String result = "result";
         future.resolve(result);
         assertTrue(future.isDone());
-        assertTrue(result.equals(future.get()));
+        assertEquals(future.get(),result);
     }
 
     @Test
