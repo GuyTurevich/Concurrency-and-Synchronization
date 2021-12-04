@@ -3,6 +3,8 @@ package bgu.spl.mics;
 import org.junit.jupiter.api.Test;
 import org.junit.Before;
 
+import java.util.concurrent.TimeUnit;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class FutureTest {
@@ -14,25 +16,39 @@ class FutureTest {
 
     @Test
     public void testGet() {
-        assertFalse(future.isDone());
-        future.resolve("result");
-        future.get();
+        Thread t = new Thread(()-> future.get());
+        t.start();
+        String result = "result";
+        future.resolve(result);
         assertTrue(future.isDone());
+        assertEquals(future.get(),result);
     }
 
     @Test
     public void testResolve() {
+        assertFalse(future.isDone());
         String result = "result";
         future.resolve(result);
         assertTrue(future.isDone());
-        assertTrue(result.equals(future.get()));
+        assertEquals(result, future.get());
     }
 
     @Test
-    public void isDone() {
+    public void testIsDone() {
+        assertFalse(future.isDone());
+        future.resolve("result");
+        assertTrue(future.isDone());
     }
 
     @Test
-    public void testGetTime() {
+    public void testGetTime() throws InterruptedException {
+        Thread t = new Thread(()-> { }); //NEED TO FILL IN
+        t.start();
+        assertFalse(future.isDone());
+        String result = "result";
+        TimeUnit.MILLISECONDS.sleep(501);
+        future.resolve(result);
+        assertFalse(future.isDone());
+        assertEquals(future.get(),result);
     }
 }
