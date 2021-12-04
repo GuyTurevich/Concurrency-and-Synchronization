@@ -16,7 +16,6 @@ public class CPU extends MicroService {
     private final Cluster cluster;
     private int tick;
     private CPUService process;
-    // process()
 
     /**
      * @param name the micro-service name (used mainly for debugging purposes -

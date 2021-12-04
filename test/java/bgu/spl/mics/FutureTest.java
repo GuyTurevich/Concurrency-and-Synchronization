@@ -31,10 +31,14 @@ class FutureTest {
     }
 
     @Test
-    public void isDone() {
+    public void testisDone() {
+        String result = "result";
+        future.resolve(result);
+        assertTrue(future.isDone());
     }
 
     @Test
     public void testGetTime() {
+
     }
 }
