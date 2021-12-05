@@ -13,7 +13,7 @@ import java.util.concurrent.TimeUnit;
  * Add all the fields described in the assignment as private fields.
  * Add fields and methods to this class as you see fit (including public methods and constructors).
  */
-public class GPU extends MicroService {
+public class GPU {
 
     /**
      * Enum representing the type of the GPU.
@@ -105,27 +105,23 @@ public class GPU extends MicroService {
         trained+=handled;
     }
 
+    /**
+     * this function talk to the Cluster and receives DataBatches that are being sent.
+     * @param dataBatch
+     * @POST check that the processed data has been updated.
+     */
     public void receiveDataFromCluster(DataBatch dataBatch){
         model.getData().addProcessed(dataBatch.size());
         trainModel(dataBatch); // Maybe it's better calling this function from the Cluster
     }
 
+    /**
+     * this functions is training the model of the GPU by the time of the GPU type.
+     * @param dataBatch
+     * @POST check that all the data after the training time has been added to handled field.
+     */
     public void trainModel(DataBatch dataBatch){ //needs to be done with threads
         //need to implement TimeService for this
-    }
-
-
-    /**
-     * This function will be called when we run the micro-service
-     * this function needs to subscribe to messages
-     *
-     * @PRE check if model !=null
-     * @PRE check if we get info from messagebus
-     * @POST check that the GPU is subscribed to the MessageBus queue
-     */
-    @Override
-    protected void initialize() {
-
     }
 
 

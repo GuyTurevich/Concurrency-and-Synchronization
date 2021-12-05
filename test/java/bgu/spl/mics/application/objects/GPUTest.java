@@ -17,15 +17,9 @@ class GPUTest {
 
     @BeforeAll
     void beforeall(){
-        student = new Student("Nitay","cs",Student.Degree.PhD);
+        student = new Student("TilBalisti","cs",Student.Degree.PhD);
         data = new Data(Data.Type.Text,1000);
         GPU gpu = new GPU(GPU.Type.RTX2080);
-    }
-    @Test
-    void initialize() {
-        assertTrue(gpu.getModel()==null);
-        Model model = new Model("TestEvent",data,student);
-        gpu.setModel(model);
     }
 
     @Test
@@ -37,9 +31,6 @@ class GPUTest {
     }
 
 
-    @Test
-    void getModel() {
-    }
 
     @Test
     void setBus_queue() {
