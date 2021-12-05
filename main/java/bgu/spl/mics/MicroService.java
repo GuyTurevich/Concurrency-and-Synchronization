@@ -23,6 +23,11 @@ public abstract class MicroService implements Runnable {
     private boolean terminated = false;
     private final String name;
 
+    public MicroService(){
+        terminated = false;
+        name = "1";         //doesn't have to be unique
+    }
+
     /**
      * @param name the micro-service name (used mainly for debugging purposes -
      *             does not have to be unique)

@@ -13,6 +13,29 @@ public class Data {
     }
 
     private Type type;
-    private int processed;
-    private int size;
+    private int processed;   //number of samples which the GPU has processed for training
+    private int size;        //number of samples in the data
+
+    public Data(Type type,int size){
+        this.type=type;
+        this.size = size;
+        processed = 0;
+    }
+
+    public Type getType(){
+        return type;
+    }
+
+    public int getSize(){
+        return size;
+    }
+
+    public void addProcessed(int processed){
+        this.processed +=processed;
+    }
+
+    public int getProcessed(){
+        return processed;
+    }
+
 }

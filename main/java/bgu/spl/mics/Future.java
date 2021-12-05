@@ -60,6 +60,11 @@ public class Future<T> {
      * @return return the result of type T if it is available, if not, 
      * 	       wait for {@code timeout} TimeUnits {@code unit}. If time has
      *         elapsed, return null.
+	 *
+	 * @PRE
+	 * @POST retrives the object
+	 * @POST if the time limit has passed return null
+	 *
      */
 	public T get(long timeout, TimeUnit unit) {
 		//TODO: implement this.
