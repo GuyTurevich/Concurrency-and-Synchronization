@@ -13,16 +13,16 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  */
 public class MessageBusImpl implements MessageBus {
 	private static MessageBusImpl singleton;
-	private ConcurrentHashMap<MicroService, ConcurrentLinkedQueue<Message>> message_queues;
-	private ConcurrentHashMap<Event<?>, LinkedList<MicroService>> events;
+	private ConcurrentHashMap<MicroService, ConcurrentLinkedQueue<Message>> messageQueues;
+	private ConcurrentHashMap<Event<?>, LinkedList<MicroService>> eventsSubscribers;
 	private ConcurrentHashMap<Broadcast , LinkedList<MicroService>> broadcasts;
-	private LinkedList GPUS;
-	private LinkedList Students;
+	private ConcurrentHashMap<Event, Future> eventFuture; //stores current events + their future obj
 
 	public MessageBusImpl(){
-		this.message_queues = new ConcurrentHashMap<MicroService, ConcurrentLinkedQueue<Message>>();
-		this.events = new ConcurrentHashMap<Event<?>,LinkedList<MicroService>>();
+		this.messageQueues = new ConcurrentHashMap<MicroService, ConcurrentLinkedQueue<Message>>();
+		this.eventsSubscribers = new ConcurrentHashMap<Event<?>,LinkedList<MicroService>>();
 		this.broadcasts = new ConcurrentHashMap<Broadcast , LinkedList<MicroService>>();
+		this.eventFuture = new ConcurrentHashMap<Event,Future>();
 	}
 
 	public static MessageBusImpl getInstance(){
@@ -63,7 +63,12 @@ public class MessageBusImpl implements MessageBus {
 	 */
 	@Override
 	public <T> void complete(Event<T> e, T result) {
-		// TODO Auto-generated method stub
+
+		eventFuture.get(e).resolve(result);
+		synchronized (eventFuture.get(e)) {
+			eventFuture.get(e).notifyAll();
+		}
+		eventFuture.remove(e);
 
 	}
 
@@ -99,7 +104,9 @@ public class MessageBusImpl implements MessageBus {
 
 	@Override
 	public void register(MicroService m) {
-		// TODO Auto-generated method stub
+
+		if(!messageQueues.containsKey(m))
+			messageQueues.put(m,new ConcurrentLinkedQueue<Message>());
 
 	}
 
@@ -125,21 +132,33 @@ public class MessageBusImpl implements MessageBus {
 	 */
 	@Override
 	public Message awaitMessage(MicroService m) throws InterruptedException {
-		// TODO Auto-generated method stub
-		return null;
+
+		ConcurrentLinkedQueue<Message> queue = messageQueues.get(m);
+		if (queue.isEmpty()) {
+			synchronized (queue) {
+				if (queue.isEmpty()) {
+					try {
+						queue.wait(); // wait for notify on the message queue (sendEvent,sendBroadcast)
+					} catch (InterruptedException i) {
+					}
+				}
+			}
+		}
+		Message message = messageQueues.get(m).remove();
+		return message;
 	}
 
 
 
 
 	public Boolean isSubscribedToEvent(Event event){
-		return events.contains(event);
+		return eventsSubscribers.contains(event);
 	}
 	public Boolean isSubscribedToBroadCast(Broadcast broadcast){
 		return broadcasts.contains(broadcast);
 	}
 	public boolean isRegistered(MicroService microService){
-		return message_queues.contains(microService);
+		return messageQueues.contains(microService);
 	}
 
 	
