@@ -7,6 +7,7 @@ import bgu.spl.mics.MicroService;
 import java.sql.Time;
 import java.util.Queue;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Passive object representing a single GPU.
@@ -25,6 +26,8 @@ public class GPU {
     private Cluster cluster;
     private Queue<Event> bus_queue;
     private Integer trained;
+    private AtomicInteger databatchCapacity;
+
 
     public GPU(Type type){
         super();
@@ -32,6 +35,11 @@ public class GPU {
         model = null;
         cluster = Cluster.getInstance();  //singelton
         bus_queue = null;
+        if (type==Type.RTX3090)
+            databatchCapacity.set(32);
+        if (type==Type.RTX2080)
+            databatchCapacity.set(16);
+        else databatchCapacity.set(8);
     }
 
     /**

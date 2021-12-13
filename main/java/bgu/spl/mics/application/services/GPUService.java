@@ -12,7 +12,7 @@ import bgu.spl.mics.application.objects.GPU;
  * You can add private fields and public methods to this class.
  * You MAY change constructor signatures and even add new public constructors.
  */
-public class GPUService extends MicroService {
+public class GPUService extends MicroService{
 
     private GPU gpu;
 

@@ -1,4 +1,9 @@
 package bgu.spl.mics.application.messages;
 
-public class TrainModelEvent {
+import bgu.spl.mics.Event;
+import bgu.spl.mics.Future;
+
+public class TrainModelEvent implements Event<Future> {
+
+
 }
