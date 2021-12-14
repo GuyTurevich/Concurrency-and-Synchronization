@@ -15,8 +15,10 @@ public class Student {
     private String name;
     private String department;
     private Degree status;
+    private Modelv2 []  models;
     private int publications;
     private int papersRead;
+
 
     public Student(String name,String department,Degree status){
         this.name= name;

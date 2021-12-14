@@ -19,7 +19,7 @@ class GPUTest {
     void beforeall(){
         student = new Student("TilBalisti","cs",Student.Degree.PhD);
         data = new Data(Data.Type.Text,1000);
-        GPU gpu = new GPU(GPU.Type.RTX2080);
+        GPU gpu = new GPU("RTX2080");
     }
 
     @Test

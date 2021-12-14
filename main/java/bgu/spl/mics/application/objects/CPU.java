@@ -23,10 +23,14 @@ public class CPU {
 
 
     public CPU(Cluster cluster, Vector<DataBatch> db,Data.Type type) {
-        this.cluster=cluster;
+        this.cluster=Cluster.getInstance();
         this.db=db;
         tick =0;
         this.type=type;
+    }
+    public CPU (int cores){
+        this.cores = cores;
+        this.cluster= Cluster.getInstance();
     }
 
     //
