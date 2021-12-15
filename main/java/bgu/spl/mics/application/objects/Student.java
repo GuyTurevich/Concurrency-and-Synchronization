@@ -28,4 +28,11 @@ public class Student {
         papersRead = 0;
     }
 
+    public void incrementPapersRead(){
+        papersRead++;
+    }
+
+    public void incrementPublications(){
+        publications++;
+    }
 }

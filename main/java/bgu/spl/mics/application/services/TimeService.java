@@ -1,6 +1,8 @@
 package bgu.spl.mics.application.services;
 
+import bgu.spl.mics.Callback;
 import bgu.spl.mics.MicroService;
+import bgu.spl.mics.application.messages.TickBroadcast;
 
 /**
  * TimeService is the global system timer There is only one instance of this micro-service.
@@ -13,14 +15,20 @@ import bgu.spl.mics.MicroService;
  */
 public class TimeService extends MicroService{
 
-	public TimeService() {
+	private int tickDuration;
+	private int totalDuration;
+
+	public TimeService(int tickDuration, int totalDuration) {
 		super("Clock");
-		// TODO Implement this
+		this.tickDuration = tickDuration;
+		this.totalDuration = totalDuration;
 	}
+
+	private Callback<TickBroadcast> TickBroadcastCallback =
 
 	@Override
 	protected void initialize() {
-		// TODO Implement this
+
 		
 	}
 

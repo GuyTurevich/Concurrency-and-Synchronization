@@ -1,6 +1,8 @@
 package bgu.spl.mics.application.services;
 
+import bgu.spl.mics.Callback;
 import bgu.spl.mics.MicroService;
+import bgu.spl.mics.application.messages.TrainModelEvent;
 
 /**
  * Student is responsible for sending the {@link TrainModelEvent},
@@ -13,13 +15,16 @@ import bgu.spl.mics.MicroService;
  */
 public class StudentService extends MicroService {
     public StudentService(String name) {
-        super("Change_This_Name");
-        // TODO Implement this
+        super(name);
     }
+
+    private final Callback<TrainModelEvent> trainModelCallback = (TrainModelEvent TrainM)->{
+
+    };
 
     @Override
     protected void initialize() {
-        // TODO Implement this
+
 
     }
 }
