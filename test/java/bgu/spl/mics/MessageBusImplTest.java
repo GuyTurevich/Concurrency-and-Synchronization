@@ -26,7 +26,7 @@ class MessageBusImplTest {
     void beforeall(){
         messagebus = new MessageBusImpl();
         cluster = new Cluster();
-        student = new Student("YohananHaTzdik","cs", null);
+        student = new Student("YohananHaTzdik","cs");
         data = new Data(null,1000);
         gpu = new GPU(null);
         model = new Model("TestEvent",data,student);

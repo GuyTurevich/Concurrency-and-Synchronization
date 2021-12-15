@@ -1,5 +1,4 @@
 package bgu.spl.mics.application;
-import bgu.spl.mics.application.objects.Student;
 import com.google.gson.Gson;
 import java.io.FileReader;
 import java.io.Reader;
