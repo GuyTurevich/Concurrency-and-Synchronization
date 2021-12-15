@@ -32,4 +32,7 @@ public class Student {
         return status ==Degree.MSc;
     }
 
+    public void incrementPapersRead(){papersRead++;}
+    public void incrementPublications(){publications++;}
+
 }
