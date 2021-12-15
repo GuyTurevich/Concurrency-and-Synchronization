@@ -10,10 +10,10 @@ import java.util.Map;
 public class Input {
     private Student [] Students ;
     private String [] GPUS;
-    private Integer [] CPUS;
+    private int [] CPUS;
     private ConfrenceInformation [] Conferences;
-    private Integer TickTime;
-    private Integer Duration;
+    private int TickTime;
+    private int Duration;
 
 
     public Student [] getStudents (){
@@ -40,11 +40,11 @@ public class Input {
     public ConfrenceInformation [] getConferences(){
         return Conferences;
     }
-    public Integer getTickTime (){
+    public int getTickTime (){
         return TickTime;
     }
 
-    public Integer getDuration(){
+    public int getDuration(){
         return Duration;
     }
 
