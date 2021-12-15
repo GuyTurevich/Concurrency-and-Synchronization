@@ -31,10 +31,10 @@ public class GPU {
 
     public GPU(String type) {
         super();
-        if (type == "RTX3090") {
+        if (type.equals("RTX3090")) {
             this.type = Type.RTX3090;
             databatchCapacity.set(32);
-        } else if (type == "RTX2080") {
+        } else if (type.equals("RTX2080")) {
             this.type = Type.RTX2080;
             databatchCapacity.set(16);
         } else {
