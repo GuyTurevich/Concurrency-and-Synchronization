@@ -28,4 +28,11 @@ public class Student {
         papersRead = 0;
     }
 
+    public boolean isMsc(){
+        return status ==Degree.MSc;
+    }
+
+    public void incrementPapersRead(){papersRead++;}
+    public void incrementPublications(){publications++;}
+
 }
