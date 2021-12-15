@@ -28,7 +28,34 @@ public class Model {
     public Data getData(){
         return data;
     }
+
     public Status getStatus(){
         return status;
+    }
+
+    public void setStatusToTrained(){
+        status=Status.Trained;
+    }
+
+    public void setStatusToTested(){
+        status=Status.Tested;
+    }
+
+    public void setStatusToTraining (){
+        status=Status.Training;
+    }
+
+    public Student getStudent(){
+        return student;
+    }
+    public boolean isResultGood(){
+        return results==Result.Good;
+    }
+
+    public void setResultsGood(){
+        results=Result.Good;
+    }
+    public void setResultsBad(){
+        results=Result.Bad;
     }
 }

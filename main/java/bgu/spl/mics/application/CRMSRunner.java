@@ -1,18 +1,8 @@
 package bgu.spl.mics.application;
-import bgu.spl.mics.application.objects.Student;
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import com.google.gson.stream.JsonReader;
-
 import java.io.FileReader;
 import java.io.Reader;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
+
 
 
 /** This is the Main class of Compute Resources Management System application. You should parse the input file,

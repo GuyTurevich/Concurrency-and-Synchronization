@@ -20,12 +20,16 @@ public class Student {
     private int papersRead;
 
 
-    public Student(String name,String department,Degree status){
+    public Student(String name,String department){
         this.name= name;
         this.department = department;
-        this.status = status;
+        this.status = null;
         publications = 0;
         papersRead = 0;
+    }
+
+    public boolean isMsc(){
+        return status ==Degree.MSc;
     }
 
 }

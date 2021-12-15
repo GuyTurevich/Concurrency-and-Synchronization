@@ -17,7 +17,7 @@ class GPUTest {
 
     @BeforeAll
     void beforeall(){
-        student = new Student("TilBalisti","cs",Student.Degree.PhD);
+        student = new Student("TilBalisti","cs");
         data = new Data(Data.Type.Text,1000);
         GPU gpu = new GPU("RTX2080");
     }
