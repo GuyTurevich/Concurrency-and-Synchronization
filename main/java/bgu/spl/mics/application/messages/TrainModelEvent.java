@@ -4,43 +4,44 @@ import bgu.spl.mics.Event;
 import bgu.spl.mics.Future;
 import bgu.spl.mics.application.objects.Model;
 
-public class TrainModelEvent implements Event<Future> {
+public class TrainModelEvent implements Event {
 
-    private String name;
-    private String type;
-    private int size;
     private Model model;
 
-    public void setName(String name){
-        this.name=name;
+    public TrainModelEvent (Model model){
+        this.model = model;
     }
 
-    public void setType(String type){
-        this.type = type;
-    }
+//    public void setName(String name) {
+//        this.name = name;
+//    }
+//
+//    public void setType(String type) {
+//        this.type = type;
+//    }
+//
+//    public void setSize(int size) {
+//        this.size = size;
+//    }
+//
+//    public String getName() {
+//        return name;
+//    }
+//
+//    public String getType() {
+//        return type;
+//    }
+//
+//    public int getSize() {
+//        return size;
+//    }
 
-    public void setSize(int size){
-        this.size=size;
-    }
-
-    public String getName(){
-        return name;
-    }
-
-    public String getType(){
-        return type;
-    }
-
-    public int getSize(){
-        return size;
-    }
-
-    public Model getModel(){
+    public Model getModel() {
         return model;
     }
 
-    public void setModel(Model model){
-        this.model=model;
+    public void setModel(Model model) {
+        this.model = model;
     }
 
 }

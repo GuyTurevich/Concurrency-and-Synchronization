@@ -16,13 +16,10 @@ public class GPUService extends MicroService{
 
     private GPU gpu;
 
-    public GPUService(GPU gpu){
+
+    public GPUService(String name , GPU gpu) {
+        super(name);
         this.gpu = gpu;
-    }
-
-
-    public GPUService(String name) {
-        super("Change_This_Name");
         // TODO Implement this
     }
 

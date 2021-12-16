@@ -15,24 +15,64 @@ public class Student {
     private String name;
     private String department;
     private Degree status;
-    private Modelv2 []  models;
+    private Modelv2[] jsonmodels;
+    private Model[] trainModels;
+    private int modelsCounter; //counter for models in trainModels,
     private int publications;
     private int papersRead;
 
 
-    public Student(String name,String department){
-        this.name= name;
+    public Student(String name, String department) {
+        this.name = name;
         this.department = department;
         this.status = null;
         publications = 0;
         papersRead = 0;
+        modelsCounter=0;
+        trainModels = new Model[jsonmodels.length];
     }
 
-    public boolean isMsc(){
+    public void incrementPapersRead() {
+        papersRead++;
+    }
+
+    public void incrementPublications() {
+        publications++;
+    }
+
+    public int getModelsCounter(){
+        return modelsCounter;
+    }
+
+    //
+    public Model[] getTrainModels() {
+        return trainModels;
+    }
+
+    //
+    public void incrementModelCounter(){
+        modelsCounter ++;
+    }
+
+    //check if Student status is Msc
+    public boolean isMsc() {
         return status == Degree.MSc;
     }
+    //initialize trainModels array with info from jsonModel array
+    public void defineTrainModels() {
+        if (!modelIsEmpty()) {
 
-    public void incrementPapersRead(){papersRead++;}
-    public void incrementPublications(){publications++;}
+            trainModels = new Model[jsonmodels.length];
+            int i = 0;
+
+            for (Modelv2 model : jsonmodels) {
+                trainModels[i] = new Model(this, model.getType(), model.getSize(), model.getName());
+            }
+        }
+    }
+
+    public boolean modelIsEmpty(){
+        return jsonmodels==null;
+    }
 
 }

@@ -199,7 +199,7 @@ public class MessageBusImpl implements MessageBus {
                 }
             }
         }
-        Message message = messageQueues.get(m).remove();
+        Message message = queue.remove();
         return message;
     }
 
@@ -215,6 +215,7 @@ public class MessageBusImpl implements MessageBus {
     public boolean isRegistered(MicroService microService) {
         return messageQueues.contains(microService);
     }
+
 
 
 }
