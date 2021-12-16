@@ -50,9 +50,10 @@ public class StudentService extends MicroService {
 
     };
 
-    public StudentService(String name) {
-        super("Student_Service");
-        // TODO Implement this
+    public StudentService(String name, Student student) {
+        super(name);
+        this.student = student;
+
     }
 
     @Override

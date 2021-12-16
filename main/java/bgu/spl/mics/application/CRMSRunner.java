@@ -1,17 +1,19 @@
 package bgu.spl.mics.application;
+
+import bgu.spl.mics.application.messages.TickBroadcast;
 import bgu.spl.mics.application.objects.CPU;
+import bgu.spl.mics.application.objects.ConfrenceInformation;
 import bgu.spl.mics.application.objects.GPU;
 import bgu.spl.mics.application.objects.Student;
-import bgu.spl.mics.application.services.CPUService;
-import bgu.spl.mics.application.services.GPUService;
-import bgu.spl.mics.application.services.TimeService;
+import bgu.spl.mics.application.services.*;
 import com.google.gson.Gson;
+
 import java.io.FileReader;
 import java.io.Reader;
 
 
-
-/** This is the Main class of Compute Resources Management System application. You should parse the input file,
+/**
+ * This is the Main class of Compute Resources Management System application. You should parse the input file,
  * create the different instances of the objects, and run the system.
  * In the end, you should output a text file.
  */
@@ -35,7 +37,6 @@ public class CRMSRunner {
             student.defineTrainModels();
         }
 
-        TimeService timeService = new TimeService(input.getTickTime(), input.getDuration());
         StartServices(input);
 
 
@@ -48,9 +49,21 @@ public class CRMSRunner {
             gpuThread.start();
         }
         CPU[] cpus = input.getCPUS();
-        for (int i = 0; i< cpus.length; i++){
-            Thread cpuThread = new Thread((new CPUService("cpu"+i, cpus[i])));
+        for (int i = 0; i < cpus.length; i++) {
+            Thread cpuThread = new Thread((new CPUService("gpu" + i, cpus[i])));
             cpuThread.start();
         }
+        Student[] students = input.getStudents();
+        for (int i = 0; i < students.length; i++) {
+            Thread studentThread = new Thread((new StudentService("student" + i, students[i])));
+            studentThread.start();
+        }
+        ConfrenceInformation[] conferences = input.getConferences();
+        for (int i = 0; i < conferences.length; i++) {
+            Thread conferencesThread = new Thread((new ConferenceService("conference" + i, conferences[i])));
+            conferencesThread.start();
+        }
+        Thread ticksThread = new Thread(new TimeService(input.getTickTime(), input.getDuration()));
+        ticksThread.start();
     }
 }
