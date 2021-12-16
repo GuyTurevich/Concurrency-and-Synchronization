@@ -4,7 +4,7 @@ import bgu.spl.mics.Event;
 import bgu.spl.mics.Future;
 import bgu.spl.mics.application.objects.Model;
 
-public class PublishResultsEvent implements Event<Future> {
+public class PublishResultsEvent implements Event{
 
     private Model model;
 
