@@ -17,6 +17,7 @@ public class Student {
     private Degree status;
     private Modelv2[] jsonmodels;
     private Model[] trainModels;
+    private int modelsCounter; //counter for models in trainModels,
     private int publications;
     private int papersRead;
 
@@ -27,6 +28,7 @@ public class Student {
         this.status = null;
         publications = 0;
         papersRead = 0;
+        modelsCounter=0;
         trainModels = new Model[jsonmodels.length];
     }
 
@@ -38,8 +40,18 @@ public class Student {
         publications++;
     }
 
+    public int getModelsCounter(){
+        return modelsCounter;
+    }
+
+    //
     public Model[] getTrainModels() {
         return trainModels;
+    }
+
+    //
+    public void incrementModelCounter(){
+        modelsCounter ++;
     }
 
     //check if Student status is Msc
