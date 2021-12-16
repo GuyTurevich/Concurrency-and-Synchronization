@@ -2,10 +2,12 @@ package bgu.spl.mics.application.services;
 
 import bgu.spl.mics.Callback;
 import bgu.spl.mics.Event;
+import bgu.spl.mics.MessageBusImpl;
 import bgu.spl.mics.MicroService;
 import bgu.spl.mics.application.messages.PublishResultsEvent;
 import bgu.spl.mics.application.messages.TestModelEvent;
 import bgu.spl.mics.application.messages.TrainModelEvent;
+import bgu.spl.mics.application.objects.Student;
 
 /**
  * Student is responsible for sending the {@link TrainModelEvent},
@@ -17,6 +19,8 @@ import bgu.spl.mics.application.messages.TrainModelEvent;
  * You MAY change constructor signatures and even add new public constructors.
  */
 public class StudentService extends MicroService {
+    private Student student;
+    private MessageBusImpl messageBus = MessageBusImpl.getInstance();
 
 
 
@@ -43,7 +47,10 @@ public class StudentService extends MicroService {
 
     @Override
     protected void initialize() {
-        // TODO Implement this
+//        messageBus.register(this);
+//        if (!student.modelIsEmpty()){
+//            messageBus.sendEvent()
+//        }
 
     }
 }
