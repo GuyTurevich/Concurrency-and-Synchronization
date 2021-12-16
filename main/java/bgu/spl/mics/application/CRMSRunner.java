@@ -1,19 +1,13 @@
 package bgu.spl.mics.application;
-
-import bgu.spl.mics.application.objects.CPU;
-import bgu.spl.mics.application.objects.GPU;
 import bgu.spl.mics.application.objects.Student;
-import bgu.spl.mics.application.services.CPUService;
-import bgu.spl.mics.application.services.GPUService;
 import bgu.spl.mics.application.services.TimeService;
 import com.google.gson.Gson;
-
 import java.io.FileReader;
 import java.io.Reader;
 
 
-/**
- * This is the Main class of Compute Resources Management System application. You should parse the input file,
+
+/** This is the Main class of Compute Resources Management System application. You should parse the input file,
  * create the different instances of the objects, and run the system.
  * In the end, you should output a text file.
  */
