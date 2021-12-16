@@ -1,4 +1,7 @@
 package bgu.spl.mics.application;
+import bgu.spl.mics.application.objects.Student;
+import bgu.spl.mics.application.services.StudentService;
+import bgu.spl.mics.application.services.TimeService;
 import com.google.gson.Gson;
 import java.io.FileReader;
 import java.io.Reader;
@@ -25,5 +28,13 @@ public class CRMSRunner {
         catch(Exception E){
             E.printStackTrace();
         }
+
+//        TimeService timeService = new TimeService(input.getDuration(), input.getTickTime());
+
+        StudentService student1 = new StudentService("Nitay");
+        student1.run();
+
     }
+
+
 }

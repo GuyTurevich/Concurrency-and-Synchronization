@@ -29,7 +29,7 @@ public class Student {
     }
 
     public boolean isMsc(){
-        return status ==Degree.MSc;
+        return status == Degree.MSc;
     }
 
     public void incrementPapersRead(){papersRead++;}

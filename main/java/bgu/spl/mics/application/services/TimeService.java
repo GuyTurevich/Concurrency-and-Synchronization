@@ -4,6 +4,10 @@ import bgu.spl.mics.Callback;
 import bgu.spl.mics.MicroService;
 import bgu.spl.mics.application.messages.TickBroadcast;
 
+import java.util.Date;
+import java.util.Timer;
+import java.util.TimerTask;
+
 /**
  * TimeService is the global system timer There is only one instance of this micro-service.
  * It keeps track of the amount of ticks passed since initialization and notifies
@@ -17,6 +21,7 @@ public class TimeService extends MicroService{
 
 	private int tickDuration;
 	private int totalDuration;
+	private int timePassed;
 
 	public TimeService(int tickDuration, int totalDuration) {
 		super("Clock");
@@ -24,11 +29,15 @@ public class TimeService extends MicroService{
 		this.totalDuration = totalDuration;
 	}
 
-	private Callback<TickBroadcast> TickBroadcastCallback =
+	private Callback<TickBroadcast> TickBroadcastCallback = (TickBroadcast tickbroadcast) ->{
+		if(timePassed < totalDuration)
+			timePassed++;
+	};
 
 	@Override
 	protected void initialize() {
-
+		Timer timer = new Timer();
+		timer.scheduleAtFixedRate((TimerTask) TickBroadcastCallback, new Date(), tickDuration);
 		
 	}
 
