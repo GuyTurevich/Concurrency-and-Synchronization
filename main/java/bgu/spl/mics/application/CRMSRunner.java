@@ -1,5 +1,9 @@
 package bgu.spl.mics.application;
+import bgu.spl.mics.application.objects.CPU;
+import bgu.spl.mics.application.objects.GPU;
 import bgu.spl.mics.application.objects.Student;
+import bgu.spl.mics.application.services.CPUService;
+import bgu.spl.mics.application.services.GPUService;
 import bgu.spl.mics.application.services.TimeService;
 import com.google.gson.Gson;
 import java.io.FileReader;
