@@ -8,7 +8,7 @@ import bgu.spl.mics.application.objects.Student;
 import java.util.Map;
 
 public class Input {
-    private Student [] Students ;
+    private Student [] Students;
     private String [] GPUS;
     private int [] CPUS;
     private ConfrenceInformation [] Conferences;

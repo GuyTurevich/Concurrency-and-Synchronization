@@ -1,4 +1,6 @@
 package bgu.spl.mics.application;
+import bgu.spl.mics.application.objects.Student;
+import bgu.spl.mics.application.services.TimeService;
 import com.google.gson.Gson;
 import java.io.FileReader;
 import java.io.Reader;
@@ -25,5 +27,14 @@ public class CRMSRunner {
         catch(Exception E){
             E.printStackTrace();
         }
+
+        Student[] students = input.getStudents();
+        for(Student student : students){
+            student.defineTrainModels();
+        }
+
+        TimeService timeService = new TimeService();
+
+
     }
 }

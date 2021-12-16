@@ -25,6 +25,14 @@ public class Model {
         this.results = Result.None;
     }
 
+    public Model(Student student, String type, int size, String name){
+        this.name = name;
+        this.student = student;
+        this.status = Status.PreTrained;
+        this.results = Result.None;
+        data = new Data(type,size);
+    }
+
     public Data getData(){
         return data;
     }

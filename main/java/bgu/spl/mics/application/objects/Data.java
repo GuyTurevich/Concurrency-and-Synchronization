@@ -16,10 +16,16 @@ public class Data {
     private int processed;   //number of samples which the GPU has processed for training
     private int size;        //number of samples in the data
 
-    public Data(Type type,int size){
-        this.type=type;
+    public Data(String type,int size){
+        this.type=getTypeByString(type);
         this.size = size;
         processed = 0;
+    }
+
+    public Type getTypeByString(String type){
+        if (type.equals("Images")) return Type.Images;
+        else if (type.equals("Text")) return Type.Text;
+        else return Type.Tabular;
     }
 
     public Type getType(){
