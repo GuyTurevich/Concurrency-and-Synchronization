@@ -47,7 +47,12 @@ public class StudentService extends MicroService {
     };
 
     private final Callback<PublishResultsEvent> PublishResultsCallBack = (PublishResultsEvent publishResultsEvent)->{
-
+        //Send next TrainModelEvent if exists
+        if (student.getModelsCounter()<=student.getTrainModels().length) {
+            TrainModelEvent firstEvent = new TrainModelEvent(student.getTrainModels()[student.getModelsCounter()]); //get the next model from the student
+            student.incrementModelCounter();
+            messageBus.sendEvent(firstEvent);
+        }
     };
 
     public StudentService(String name) {
@@ -65,8 +70,7 @@ public class StudentService extends MicroService {
         if (!student.modelIsEmpty()){
             TrainModelEvent firstEvent = new TrainModelEvent(student.getTrainModels()[0]); //get first model from model list
             student.incrementModelCounter();
-            messageBus.sendEvent(firstEvent);
-
+            student.setFuture(sendEvent(firstEvent));     //using MicroService "sendEvent" function
         }
     }
 }
