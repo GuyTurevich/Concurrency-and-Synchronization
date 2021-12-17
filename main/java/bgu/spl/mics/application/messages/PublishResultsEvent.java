@@ -6,13 +6,10 @@ import bgu.spl.mics.application.objects.Model;
 import bgu.spl.mics.application.objects.Student;
 
 public class PublishResultsEvent implements Event<Model> {
-
-    private Student student;
     private Model model;
 
-    public PublishResultsEvent(Model model, Student student) {
+    public PublishResultsEvent(Model model) {
         this.model = model;
-        this.student = student;
     }
 
     public Model getModel() {

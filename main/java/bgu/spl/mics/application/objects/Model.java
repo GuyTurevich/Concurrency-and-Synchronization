@@ -41,6 +41,17 @@ public class Model {
         return status;
     }
 
+    public String getStatusString(){
+        if(status == Status.PreTrained)
+            return "PreTrained";
+        if(status == Status.Training)
+            return "Training";
+        if(status == Status.Trained)
+            return "Trained";
+        else
+            return "Tested";
+    }
+
     public void setStatusToTrained(){
         status=Status.Trained;
     }

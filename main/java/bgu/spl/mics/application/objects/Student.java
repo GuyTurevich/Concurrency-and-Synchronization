@@ -44,15 +44,18 @@ public class Student {
         return modelsCounter;
     }
 
-    //
+    public Model getNextModel(){
+        if(modelsCounter == trainModels.length)
+            return null;
+        return trainModels[modelsCounter++];
+    }
+
     public Model[] getTrainModels() {
         return trainModels;
     }
 
-    //
-    public void incrementModelCounter(){
-        modelsCounter ++;
-    }
+    public void incrementModelCounter(){modelsCounter++;}
+
 
     //check if Student status is Msc
     public boolean isMsc() {
