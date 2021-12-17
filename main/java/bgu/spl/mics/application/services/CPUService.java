@@ -2,6 +2,8 @@ package bgu.spl.mics.application.services;
 
 import bgu.spl.mics.Callback;
 import bgu.spl.mics.MicroService;
+import bgu.spl.mics.application.objects.CPU;
+import bgu.spl.mics.application.objects.GPU;
 
 /**
  * CPU service is responsible for handling the {@link DataPreProcessEvent}.
@@ -12,8 +14,10 @@ import bgu.spl.mics.MicroService;
  */
 public class CPUService extends MicroService {
 
-    public CPUService(String name) {
-        super("Change_This_Name");
+    private CPU cpu;
+
+    public CPUService(String name, CPU cpu) {
+        super(name);
         // TODO Implement this
     }
 
