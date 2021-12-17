@@ -2,8 +2,9 @@ package bgu.spl.mics.application.services;
 
 import bgu.spl.mics.Callback;
 import bgu.spl.mics.MicroService;
+import bgu.spl.mics.application.messages.PublishResultsEvent;
+import bgu.spl.mics.application.messages.TickBroadcast;
 import bgu.spl.mics.application.objects.CPU;
-import bgu.spl.mics.application.objects.GPU;
 
 /**
  * CPU service is responsible for handling the {@link DataPreProcessEvent}.
@@ -18,12 +19,21 @@ public class CPUService extends MicroService {
 
     public CPUService(String name, CPU cpu) {
         super(name);
-        // TODO Implement this
+        this.cpu = cpu;
     }
+
+    private Callback<TickBroadcast> TickBroadcastCallBack = (TickBroadcast tickBroadcast) ->{
+        cpu.increaseTick();
+        if (!cpu.dbEmpty()) {
+            if (cpu.firstBatchTicks() == cpu.getTick()) {
+                cpu.finishProcess();
+            }
+        }
+    };
+
 
     @Override
     protected void initialize() {
-        // TODO Implement this
-
+        this.subscribeBroadcast(TickBroadcast.class,TickBroadcastCallBack);
     }
 }

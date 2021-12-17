@@ -1,12 +1,8 @@
 package bgu.spl.mics.application.objects;
 
-import bgu.spl.mics.MicroService;
 import bgu.spl.mics.application.services.CPUService;
 
-import java.util.Collection;
-import java.util.Iterator;
 import java.util.Vector;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Passive object representing a single CPU.
@@ -18,6 +14,7 @@ public class CPU {
     private Vector <DataBatch> db;
     private final Cluster cluster;
     private int tick;
+    private int ticksTillEnd;
     private CPUService CPUProcess;
     private Data.Type type;
 
@@ -32,6 +29,36 @@ public class CPU {
         this.cores = cores;
         this.cluster= Cluster.getInstance();
     }
+
+    public void addDataBatch(DataBatch dataBatch){
+        db.add(dataBatch);
+        ticksTillEnd += (32/cores)*dataBatch.numberOfTicks();
+    }
+
+    public int getTicksTillEnd(){
+        return ticksTillEnd;
+    }
+
+    public boolean dbEmpty(){
+        return db.isEmpty();
+    }
+
+    public int firstBatchTicks(){
+        return db.firstElement().numberOfTicks() * 32/cores;
+    }
+
+    public void finishProcess(){
+        db.remove(0);
+        this.tick=0;
+    }
+
+
+
+
+
+
+
+
 
     //
     public void run(Vector<DataBatch> db){

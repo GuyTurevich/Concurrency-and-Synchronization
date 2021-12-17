@@ -20,12 +20,10 @@ public class GPUService extends MicroService{
     public GPUService(String name , GPU gpu) {
         super(name);
         this.gpu = gpu;
-        // TODO Implement this
     }
 
     @Override
     protected void initialize() {
-        // TODO Implement this
 
     }
 }

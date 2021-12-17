@@ -66,6 +66,15 @@ public class GPU {
         return model == null;
     }
 
+
+
+
+
+
+
+
+
+
     /**
      * @param queue this function saves the queue we receive from the message bus
      * @PRE check that the queue was empty

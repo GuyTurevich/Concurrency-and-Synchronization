@@ -9,6 +9,7 @@ import java.util.Vector;
 
 public class DataBatch {
     private Vector<Integer> dataBatch;
+    private Data.Type type;
 
     public DataBatch(){
         dataBatch =new Vector<Integer>(1000);
@@ -18,5 +19,11 @@ public class DataBatch {
     }
     public int size(){
         return dataBatch.size();
+    }
+
+    public int numberOfTicks(){
+        if (type == Data.Type.Images) return 4;
+        else if (type == Data.Type.Text) return 2;
+        else return 1;
     }
 }
