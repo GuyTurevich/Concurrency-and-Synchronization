@@ -2,6 +2,7 @@ package bgu.spl.mics.application.services;
 
 import bgu.spl.mics.Callback;
 import bgu.spl.mics.MicroService;
+import bgu.spl.mics.application.messages.TerminationBroadcast;
 import bgu.spl.mics.application.objects.CPU;
 import bgu.spl.mics.application.objects.GPU;
 
@@ -21,9 +22,13 @@ public class CPUService extends MicroService {
         // TODO Implement this
     }
 
+    private Callback<TerminationBroadcast> terminateCallback = (TerminationBroadcast terminationBroadcast) ->{
+        terminate();
+    };
+
     @Override
     protected void initialize() {
-        // TODO Implement this
+        this.subscribeBroadcast(TerminationBroadcast.class, terminateCallback);
 
     }
 }

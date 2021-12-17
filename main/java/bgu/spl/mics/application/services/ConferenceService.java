@@ -3,6 +3,7 @@ package bgu.spl.mics.application.services;
 import bgu.spl.mics.Callback;
 import bgu.spl.mics.Event;
 import bgu.spl.mics.MicroService;
+import bgu.spl.mics.application.messages.TerminationBroadcast;
 import bgu.spl.mics.application.objects.ConfrenceInformation;
 
 /**
@@ -22,9 +23,13 @@ public class ConferenceService extends MicroService {
         this.confrenceInformation = confrenceInformation;
     }
 
+    private Callback<TerminationBroadcast> terminateCallback = (TerminationBroadcast terminationBroadcast) ->{
+        terminate();
+    };
+
     @Override
     protected void initialize() {
-        // TODO Implement this
+        this.subscribeBroadcast(TerminationBroadcast.class, terminateCallback);
 
     }
 

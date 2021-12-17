@@ -1,6 +1,11 @@
 package bgu.spl.mics.application.services;
 
+import bgu.spl.mics.Callback;
 import bgu.spl.mics.MicroService;
+import bgu.spl.mics.application.messages.TerminationBroadcast;
+import bgu.spl.mics.application.messages.TestModelEvent;
+import bgu.spl.mics.application.messages.TickBroadcast;
+import bgu.spl.mics.application.messages.TrainModelEvent;
 import bgu.spl.mics.application.objects.GPU;
 
 /**
@@ -22,10 +27,21 @@ public class GPUService extends MicroService{
         this.gpu = gpu;
         // TODO Implement this
     }
+    private Callback<TrainModelEvent> trainCallback = (TrainModelEvent trainModelEvent)->{};
+
+    private Callback<TestModelEvent> testCallback = (TestModelEvent testModelEvent)->{};
+
+    private Callback<TickBroadcast> tickCallback = (TickBroadcast tickBroadcast)->{};
+
+    private Callback<TerminationBroadcast> terminateCallback = (TerminationBroadcast terminationBroadcast) ->{
+        terminate();
+    };
 
     @Override
     protected void initialize() {
-        // TODO Implement this
-
+        this.subscribeEvent(TrainModelEvent.class,trainCallback);
+        this.subscribeEvent(TestModelEvent.class, testCallback);
+        this.subscribeBroadcast(TickBroadcast.class, tickCallback);
+        this.subscribeBroadcast(TerminationBroadcast.class, terminateCallback);
     }
 }
