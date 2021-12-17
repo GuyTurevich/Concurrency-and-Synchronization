@@ -1,7 +1,5 @@
 package bgu.spl.mics.application.objects;
 
-import bgu.spl.mics.Future;
-
 /**
  * Passive object representing single student.
  * Add fields and methods to this class as you see fit (including public methods and constructors).
@@ -22,7 +20,6 @@ public class Student {
     private int modelsCounter; //counter for models in trainModels,
     private int publications;
     private int papersRead;
-    private Future future ;
 
 
     public Student(String name, String department) {
@@ -47,19 +44,18 @@ public class Student {
         return modelsCounter;
     }
 
-    public void setFuture(Future future){
-        this.future = future;
+    public Model getNextModel(){
+        if(modelsCounter == trainModels.length)
+            return null;
+        return trainModels[modelsCounter++];
     }
 
-    //
     public Model[] getTrainModels() {
         return trainModels;
     }
 
-    //
-    public void incrementModelCounter(){
-        modelsCounter ++;
-    }
+    public void incrementModelCounter(){modelsCounter++;}
+
 
     //check if Student status is Msc
     public boolean isMsc() {

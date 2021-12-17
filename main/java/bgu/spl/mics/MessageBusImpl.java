@@ -17,7 +17,7 @@ public class MessageBusImpl implements MessageBus {
     private ConcurrentHashMap<Class<? extends Broadcast>, LinkedList<MicroService>> broadcastsSubs;
     private ConcurrentHashMap<MicroService, LinkedList<Class<? extends Event>>> unregisterEvent; // reverse eventSubscribers object
     private ConcurrentHashMap<MicroService, LinkedList<Class<? extends Broadcast>>> unregisterBroadcast; // reverse broadcasts object
-    private ConcurrentHashMap<Event, Future> eventFuture; //stores current events + their future obj
+    private ConcurrentHashMap<Class<? extends Event>, Future> eventFuture; //stores current events + their future obj
 
 
     public MessageBusImpl() {
@@ -26,7 +26,7 @@ public class MessageBusImpl implements MessageBus {
         this.broadcastsSubs = new ConcurrentHashMap<Class<? extends Broadcast>, LinkedList<MicroService>>();
         this.unregisterEvent = new ConcurrentHashMap<MicroService, LinkedList<Class<? extends Event>>>();
         this.unregisterBroadcast = new ConcurrentHashMap<MicroService, LinkedList<Class<? extends Broadcast>>>();
-        this.eventFuture = new ConcurrentHashMap<Event, Future>();
+        this.eventFuture = new ConcurrentHashMap<Class<? extends Event>, Future>();
 
     }
 
@@ -119,7 +119,7 @@ public class MessageBusImpl implements MessageBus {
     @Override
     public <T> Future<T> sendEvent(Event<T> e) {
         Future future = new Future<T>();
-        eventFuture.put(e, future);
+        eventFuture.put(e.getClass(), future);
         LinkedList<MicroService> subs = eventsSubs.get(e.getClass());
         if (subs == null || subs.size() == 0) {
             return null;
@@ -216,6 +216,10 @@ public class MessageBusImpl implements MessageBus {
     public boolean isRegistered(MicroService microService) {
         return messageQueues.contains(microService);
     }
+
+//    public boolean isDoneFuture(Event event){
+//        return eventFuture.get(event).isDone();
+//    }
 
 
 
