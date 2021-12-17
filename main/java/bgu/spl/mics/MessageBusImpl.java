@@ -126,7 +126,8 @@ public class MessageBusImpl implements MessageBus {
         }
         MicroService microService;
         synchronized (subs) {
-            microService = subs.peek();
+            microService = subs.pop();
+            subs.addLast(microService); // for round robbin
         }
 
         ConcurrentLinkedQueue<Message> messages = messageQueues.get(microService);
