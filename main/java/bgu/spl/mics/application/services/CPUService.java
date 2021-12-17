@@ -4,6 +4,7 @@ import bgu.spl.mics.Callback;
 import bgu.spl.mics.MicroService;
 import bgu.spl.mics.application.messages.PublishResultsEvent;
 import bgu.spl.mics.application.messages.TickBroadcast;
+import bgu.spl.mics.application.messages.TerminationBroadcast;
 import bgu.spl.mics.application.objects.CPU;
 
 /**
@@ -32,8 +33,13 @@ public class CPUService extends MicroService {
     };
 
 
+    private Callback<TerminationBroadcast> terminateCallback = (TerminationBroadcast terminationBroadcast) ->{
+        terminate();
+    };
+
     @Override
     protected void initialize() {
-        this.subscribeBroadcast(TickBroadcast.class,TickBroadcastCallBack);
+        this.subscribeBroadcast(TerminationBroadcast.class, terminateCallback);
+
     }
 }

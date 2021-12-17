@@ -31,7 +31,7 @@ class MessageBusImplTest {
         gpu = new GPU(null);
         model = new Model("TestEvent",data,student);
         gpu.setModel(model);
-        gpuService = new GPUService("Name", gpu);
+        gpuService = new GPUService("gpu",gpu);
         this.event = new TestModelEvent();
         this.broadcastevent =  new TickBroadcast();
 

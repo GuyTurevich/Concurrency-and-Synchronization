@@ -2,6 +2,7 @@ package bgu.spl.mics.application.services;
 
 import bgu.spl.mics.Callback;
 import bgu.spl.mics.MicroService;
+import bgu.spl.mics.application.messages.TerminationBroadcast;
 import bgu.spl.mics.application.messages.TickBroadcast;
 
 import java.util.Date;
@@ -41,6 +42,10 @@ public class TimeService extends MicroService {
                 if (timePassed < totalDuration) {
                     sendBroadcast(tickBroadcast);
                     timePassed++;
+                }
+                else if(timePassed == totalDuration) {
+                    sendBroadcast(new TerminationBroadcast());
+                    terminate();
                 }
             }
         }, tickDuration, tickDuration);
