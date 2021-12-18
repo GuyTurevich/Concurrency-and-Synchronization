@@ -30,6 +30,7 @@ public class ConferenceService extends MicroService {
     public ConferenceService(String name, ConfrenceInformation confrenceInformation) {
         super(name);
         this.confrenceInformation = confrenceInformation;
+        ticksPassed = 0;
     }
 
     private Callback<TerminationBroadcast> terminateCallback = (TerminationBroadcast terminationBroadcast) -> {

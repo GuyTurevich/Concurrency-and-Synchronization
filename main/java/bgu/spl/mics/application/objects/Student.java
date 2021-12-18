@@ -15,7 +15,7 @@ public class Student {
     private String name;
     private String department;
     private Degree status;
-    private Modelv2[] jsonmodels;
+    private Modelv2[] models;
     private Model[] trainModels;
     private int modelsCounter; //counter for models in trainModels,
     private int publications;
@@ -29,7 +29,7 @@ public class Student {
         publications = 0;
         papersRead = 0;
         modelsCounter=0;
-        trainModels = new Model[jsonmodels.length];
+        trainModels = new Model[models.length];
     }
 
     public void increasePapersRead(int numOfPapersRead) {
@@ -65,17 +65,18 @@ public class Student {
     public void defineTrainModels() {
         if (!modelIsEmpty()) {
 
-            trainModels = new Model[jsonmodels.length];
+            trainModels = new Model[models.length];
             int i = 0;
 
-            for (Modelv2 model : jsonmodels) {
+            for (Modelv2 model : models) {
                 trainModels[i] = new Model(this, model.getType(), model.getSize(), model.getName());
+                i++;
             }
         }
     }
 
     public boolean modelIsEmpty(){
-        return jsonmodels==null;
+        return models ==null;
     }
 
 }

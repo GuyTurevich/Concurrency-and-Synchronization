@@ -44,6 +44,13 @@ public class GPUService extends MicroService {
         this.gpu = gpu;
         this.numberOfBatches = 0; // how many batches is in this model
         currentBatch = 0;
+        tick = 0;
+        currentBatch = 0;
+        isTrainModel = false;
+        isTraining = false;
+        model = null;
+        processedBatchCounter = 0;
+        currTrainModelEvent = null;
     }
 
     private Callback<TrainModelEvent> trainCallback = (TrainModelEvent trainModelEvent) -> {

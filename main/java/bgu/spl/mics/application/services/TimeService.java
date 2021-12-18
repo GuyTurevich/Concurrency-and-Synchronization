@@ -30,6 +30,7 @@ public class TimeService extends MicroService {
         this.tickDuration = tickDuration;
         this.totalDuration = totalDuration;
         this.tickBroadcast = new TickBroadcast();
+        timePassed = 0;
     }
 
 

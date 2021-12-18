@@ -25,6 +25,12 @@ public class StudentService extends MicroService {
     private Model currentModel;
     private Future<Model> currentFuture;
 
+    public StudentService(String name, Student student) {
+        super(name);
+        this.student = student;
+        currentModel = null;
+        currentFuture = null;
+    }
 
     private Callback<TickBroadcast> tickBroadcastCallback = (TickBroadcast tickBroadcast) -> {
 
@@ -68,11 +74,6 @@ public class StudentService extends MicroService {
         terminate();
     };
 
-    public StudentService(String name, Student student) {
-        super(name);
-        this.student = student;
-
-    }
 
     @Override
     protected void initialize() {
