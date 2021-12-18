@@ -16,20 +16,16 @@ public class CPU {
     private final Cluster cluster;
     private int tick;
     private int ticksTillEnd;
-    private CPUService CPUProcess;
-    private Data.Type type;
     private int timeUsed;
 
 
-    public CPU(Cluster cluster, ConcurrentLinkedDeque<DataBatch> db,Data.Type type) {
-        this.cluster=Cluster.getInstance();
-        this.db=db;
-        tick =0;
-        this.type=type;
-    }
     public CPU (int cores){
         this.cores = cores;
+        this.db = new ConcurrentLinkedDeque<DataBatch>();
         this.cluster= Cluster.getInstance();
+        tick = 0;
+        ticksTillEnd = 0;
+        timeUsed = 0;
     }
 
     public void addDataBatch(DataBatch dataBatch){

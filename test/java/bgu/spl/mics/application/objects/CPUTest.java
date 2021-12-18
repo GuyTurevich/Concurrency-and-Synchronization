@@ -14,7 +14,7 @@ class CPUTest {
     @BeforeAll
     void beforeall(){
         ConcurrentLinkedDeque<DataBatch> db=new ConcurrentLinkedDeque<DataBatch>();
-        cpu = new CPU(Cluster.getInstance(),db, Data.Type.Images);
+        cpu = new CPU(8);
     }
 
     @Test

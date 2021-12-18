@@ -47,6 +47,7 @@ public class GPU {
         cluster = Cluster.getInstance();  //singelton
         bus_queue = null;
         timeUsed =0;
+        processedBatchesTotal = 0;
     }
 
     public int getDataBatchCapacity(){
