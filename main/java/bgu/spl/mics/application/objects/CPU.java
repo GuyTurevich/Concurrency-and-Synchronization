@@ -1,12 +1,8 @@
 package bgu.spl.mics.application.objects;
 
-import bgu.spl.mics.MicroService;
 import bgu.spl.mics.application.services.CPUService;
 
-import java.util.Collection;
-import java.util.Iterator;
 import java.util.Vector;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Passive object representing a single CPU.
@@ -18,6 +14,7 @@ public class CPU {
     private Vector <DataBatch> db;
     private final Cluster cluster;
     private int tick;
+    private int ticksTillEnd;
     private CPUService CPUProcess;
     private Data.Type type;
 
@@ -33,6 +30,36 @@ public class CPU {
         this.cluster= Cluster.getInstance();
     }
 
+    public void addDataBatch(DataBatch dataBatch){
+        db.add(dataBatch);
+        ticksTillEnd += (32/cores)*dataBatch.numberOfTicks();
+    }
+
+    public int getTicksTillEnd(){
+        return ticksTillEnd;
+    }
+
+    public boolean dbEmpty(){
+        return db.isEmpty();
+    }
+
+    public int firstBatchTicks(){
+        return db.firstElement().numberOfTicks() * 32/cores;
+    }
+
+    public void finishProcess(){
+        db.remove(0);
+        this.tick=0;
+    }
+
+
+
+
+
+
+
+
+
     //
     public void run(Vector<DataBatch> db){
         this.db=db;
@@ -44,9 +71,9 @@ public class CPU {
      *
      * @POST check that the new data batch is in the vector
      */
-    public void receiveBatch(DataBatch databatch){
-        db.add(databatch);
-    }
+//    public void receiveBatch(DataBatch databatch){
+//        db.add(databatch);
+//    }
 
     /**
      * this functions process the unprocessed data in a certain amout of time - depends on the number of cores
@@ -54,14 +81,14 @@ public class CPU {
      *
      * @POST check that the DataBatch that has been processed has been past on
      */
-    public DataBatch process(DataBatch databatch){
-        DataBatch processed = new DataBatch();
-        if (!db.isEmpty()){
-            processed = db.remove(0);
-            //add sleep by the data type
-        }
-        return processed;
-    }
+//    public DataBatch process(DataBatch databatch){
+//        DataBatch processed = new DataBatch();
+//        if (!db.isEmpty()){
+//            processed = db.remove(0);
+//            //add sleep by the data type
+//        }
+//        return processed;
+//    }
 
     public Vector<DataBatch> getDb(){
         return db;

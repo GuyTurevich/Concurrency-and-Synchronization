@@ -1,12 +1,8 @@
 package bgu.spl.mics.application.objects;
 
 import bgu.spl.mics.Event;
-import bgu.spl.mics.Message;
-import bgu.spl.mics.MicroService;
 
-import java.sql.Time;
 import java.util.Queue;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -25,26 +21,49 @@ public class GPU {
     private Model model;
     private Cluster cluster;
     private Queue<Event> bus_queue;
-    private Integer trained;
-    private AtomicInteger databatchCapacity;
+    private int tickTimeToTrain;
+    private int trained;
+    private int dataBatchCapacity;
 
 
     public GPU(String type) {
         super();
         if (type.equals("RTX3090")) {
             this.type = Type.RTX3090;
-            databatchCapacity.set(32);
+            dataBatchCapacity=32;
+            tickTimeToTrain = 1;
         } else if (type.equals("RTX2080")) {
             this.type = Type.RTX2080;
-            databatchCapacity.set(16);
+            dataBatchCapacity=16;
+            tickTimeToTrain =2;
         } else {
             this.type = Type.GTX1080;
-            databatchCapacity.set(8);
+            dataBatchCapacity=8;
+            tickTimeToTrain =1;
         }
         model = null;
         cluster = Cluster.getInstance();  //singelton
         bus_queue = null;
     }
+
+    public int getDataBatchCapacity(){
+        return dataBatchCapacity;
+    }
+
+    public int getTickTimeToTrain(){
+        return tickTimeToTrain;
+    }
+
+
+
+
+
+
+
+
+
+
+
 
     /**
      * this functions sets a new model for the gpu
@@ -65,6 +84,8 @@ public class GPU {
     public boolean isFree() {
         return model == null;
     }
+
+
 
     /**
      * @param queue this function saves the queue we receive from the message bus
@@ -91,6 +112,11 @@ public class GPU {
         else return new DataBatch(model.getData().getSize() - startindex);
     }
 
+    public Integer getTrainedData() {
+        return trained;
+    }
+
+
     /**
      * sends all the DataBatches to the cluster untill data is empty
      *
@@ -107,13 +133,14 @@ public class GPU {
         }
     }
 
-    public Integer getTrainedData() {
-        return trained;
-    }
-
     public void addTrained(Integer handled) {
         trained += handled;
     }
+
+
+
+
+
 
     /**
      * this function talk to the Cluster and receives DataBatches that are being sent.
