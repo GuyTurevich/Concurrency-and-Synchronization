@@ -71,9 +71,9 @@ public class CPU {
      *
      * @POST check that the new data batch is in the vector
      */
-    public void receiveBatch(DataBatch databatch){
-        db.add(databatch);
-    }
+//    public void receiveBatch(DataBatch databatch){
+//        db.add(databatch);
+//    }
 
     /**
      * this functions process the unprocessed data in a certain amout of time - depends on the number of cores
@@ -81,14 +81,14 @@ public class CPU {
      *
      * @POST check that the DataBatch that has been processed has been past on
      */
-    public DataBatch process(DataBatch databatch){
-        DataBatch processed = new DataBatch();
-        if (!db.isEmpty()){
-            processed = db.remove(0);
-            //add sleep by the data type
-        }
-        return processed;
-    }
+//    public DataBatch process(DataBatch databatch){
+//        DataBatch processed = new DataBatch();
+//        if (!db.isEmpty()){
+//            processed = db.remove(0);
+//            //add sleep by the data type
+//        }
+//        return processed;
+//    }
 
     public Vector<DataBatch> getDb(){
         return db;
