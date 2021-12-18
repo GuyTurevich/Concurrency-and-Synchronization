@@ -19,7 +19,8 @@ public class Cluster {
 	private CPU [] cpus;
 	private ConcurrentHashMap<GPU, ConcurrentLinkedQueue> gpuQueues;
 	private ConcurrentHashMap<CPU,ConcurrentLinkedQueue> cpuQueues; //might not need
-	private Vector<DataBatch> processedBatches;
+	private ConcurrentHashMap<GPU,ConcurrentLinkedQueue<DataBatch>> processedBatches;
+	//private Vector<DataBatch> processedBatches;
 	private static Cluster singleton;
 
 	public Cluster (GPU [] gpus, CPU [] cpus){
@@ -48,7 +49,7 @@ public class Cluster {
 	}
 
 	public void getBatchFromCpu(DataBatch dataBatch){
-		processedBatches.add(dataBatch);
+		processedBatches.get(dataBatch.getGpu()).add(dataBatch);
 	}
 
 	public CPU getFastestCpu(){
@@ -65,8 +66,12 @@ public class Cluster {
 		cpu.addDataBatch(dataBatch);
 	}
 
-	public DataBatch getNextProcessed(){
-		return processedBatches.remove(0);
+	public int getGpuQueueSize(GPU gpu){
+		return processedBatches.get(gpu).size();
+	}
+
+	public void removeFirstFromQueue(GPU gpu){
+		processedBatches.get(gpu).remove(0);
 	}
 
 

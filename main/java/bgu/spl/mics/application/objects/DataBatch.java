@@ -12,12 +12,12 @@ import java.util.concurrent.LinkedBlockingQueue;
 public class DataBatch {
     private Vector<Integer> dataBatch;
     private Data.Type type;
-    private Queue gpuQueue;
+    private GPU gpu;
 
-    public DataBatch(Data.Type type, Queue gpuQueue){
+    public DataBatch(Data.Type type, GPU gpu){
         dataBatch =new Vector<Integer>(1000);
         this.type = type;
-        this.gpuQueue=gpuQueue;
+        this.gpu=gpu;
     }
 
     public DataBatch(){
@@ -36,7 +36,7 @@ public class DataBatch {
         else return 1;
     }
 
-    public Queue getQueue(){
-        return gpuQueue;
+    public GPU getGpu(){
+        return gpu;
     }
 }
