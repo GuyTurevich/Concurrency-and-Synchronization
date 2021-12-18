@@ -24,6 +24,8 @@ public class GPU {
     private int tickTimeToTrain;
     private int trained;
     private int dataBatchCapacity;
+    private int timeUsed;
+    private int processedBatchesTotal;
 
 
     public GPU(String type) {
@@ -39,11 +41,12 @@ public class GPU {
         } else {
             this.type = Type.GTX1080;
             dataBatchCapacity=8;
-            tickTimeToTrain =1;
+            tickTimeToTrain =4;
         }
         model = null;
         cluster = Cluster.getInstance();  //singelton
         bus_queue = null;
+        timeUsed =0;
     }
 
     public int getDataBatchCapacity(){
@@ -54,6 +57,12 @@ public class GPU {
         return tickTimeToTrain;
     }
 
+    public void incrementTimeUsed(){
+        timeUsed +=tickTimeToTrain;
+    }
+    public void incrementTotalProcessed(){
+        processedBatchesTotal ++;
+    }
 
 
 

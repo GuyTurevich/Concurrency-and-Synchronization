@@ -1,10 +1,8 @@
 package bgu.spl.mics.application;
 
+import bgu.spl.mics.MessageBusImpl;
 import bgu.spl.mics.application.messages.TickBroadcast;
-import bgu.spl.mics.application.objects.CPU;
-import bgu.spl.mics.application.objects.ConfrenceInformation;
-import bgu.spl.mics.application.objects.GPU;
-import bgu.spl.mics.application.objects.Student;
+import bgu.spl.mics.application.objects.*;
 import bgu.spl.mics.application.services.*;
 import com.google.gson.Gson;
 
@@ -43,6 +41,9 @@ public class CRMSRunner {
     }
 
     private static void StartServices(Input input) {
+
+        MessageBusImpl messageBus = MessageBusImpl.getInstance();
+
         GPU[] gpus = input.getGPUS();
         for (int i = 0; i < gpus.length; i++) {
             Thread gpuThread = new Thread(new GPUService("gpu" + i, gpus[i]));
@@ -53,6 +54,9 @@ public class CRMSRunner {
             Thread cpuThread = new Thread((new CPUService("gpu" + i, cpus[i])));
             cpuThread.start();
         }
+
+        Cluster cluster = new Cluster(gpus,cpus);
+
         Student[] students = input.getStudents();
         for (int i = 0; i < students.length; i++) {
             Thread studentThread = new Thread((new StudentService("student" + i, students[i])));
@@ -65,5 +69,6 @@ public class CRMSRunner {
         }
         Thread ticksThread = new Thread(new TimeService(input.getTickTime(), input.getDuration()));
         ticksThread.start();
+
     }
 }

@@ -51,15 +51,16 @@ public class StudentService extends MicroService {
     private Callback<PublishConferenceBroadcast> publishConferenceCallback =
             (PublishConferenceBroadcast publishConferenceBroadcast) ->{
 
-                ConcurrentHashMap<Student, ConcurrentLinkedDeque<Model>> models= publishConferenceBroadcast.getModels();
+                ConcurrentHashMap<Student, ConcurrentLinkedDeque<Model>> models = publishConferenceBroadcast.getModels();
                 if(models.containsKey(student)) {
                     ConcurrentLinkedDeque<Model> studentsPublications= models.get(student);
                     student.increasePublications(studentsPublications.size());
                     models.remove(student);
                 }
-                for(Student currentStudent : models.keySet())
-                    student.increasePapersRead(models.get(currentStudent).size());
-
+                if(!models.isEmpty()) {
+                    for (Student currentStudent : models.keySet())
+                        student.increasePapersRead(models.get(currentStudent).size());
+                }
 
     };
 

@@ -1,7 +1,10 @@
 package bgu.spl.mics;
 
+import bgu.spl.mics.application.messages.PublishResultsEvent;
+
 import java.util.LinkedList;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 
@@ -13,19 +16,19 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 public class MessageBusImpl implements MessageBus {
     private static MessageBusImpl singleton;
     private ConcurrentHashMap<MicroService, ConcurrentLinkedQueue<Message>> messageQueues;
-    private ConcurrentHashMap<Class<? extends Event>, LinkedList<MicroService>> eventsSubs;
-    private ConcurrentHashMap<Class<? extends Broadcast>, LinkedList<MicroService>> broadcastsSubs;
-    private ConcurrentHashMap<MicroService, LinkedList<Class<? extends Event>>> unregisterEvent; // reverse eventSubscribers object
-    private ConcurrentHashMap<MicroService, LinkedList<Class<? extends Broadcast>>> unregisterBroadcast; // reverse broadcasts object
+    private ConcurrentHashMap<Class<? extends Event>, ConcurrentLinkedDeque<MicroService>> eventsSubs;
+    private ConcurrentHashMap<Class<? extends Broadcast>, ConcurrentLinkedDeque<MicroService>> broadcastsSubs;
+    private ConcurrentHashMap<MicroService, ConcurrentLinkedDeque<Class<? extends Event>>> unregisterEvent; // reverse eventSubscribers object
+    private ConcurrentHashMap<MicroService, ConcurrentLinkedDeque<Class<? extends Broadcast>>> unregisterBroadcast; // reverse broadcasts object
     private ConcurrentHashMap<Class<? extends Event>, Future> eventFuture; //stores current events + their future obj
 
 
     public MessageBusImpl() {
         this.messageQueues = new ConcurrentHashMap<MicroService, ConcurrentLinkedQueue<Message>>();
-        this.eventsSubs = new ConcurrentHashMap<Class<? extends Event>, LinkedList<MicroService>>();
-        this.broadcastsSubs = new ConcurrentHashMap<Class<? extends Broadcast>, LinkedList<MicroService>>();
-        this.unregisterEvent = new ConcurrentHashMap<MicroService, LinkedList<Class<? extends Event>>>();
-        this.unregisterBroadcast = new ConcurrentHashMap<MicroService, LinkedList<Class<? extends Broadcast>>>();
+        this.eventsSubs = new ConcurrentHashMap<Class<? extends Event>, ConcurrentLinkedDeque<MicroService>>();
+        this.broadcastsSubs = new ConcurrentHashMap<Class<? extends Broadcast>, ConcurrentLinkedDeque<MicroService>>();
+        this.unregisterEvent = new ConcurrentHashMap<MicroService, ConcurrentLinkedDeque<Class<? extends Event>>>();
+        this.unregisterBroadcast = new ConcurrentHashMap<MicroService, ConcurrentLinkedDeque<Class<? extends Broadcast>>>();
         this.eventFuture = new ConcurrentHashMap<Class<? extends Event>, Future>();
 
     }
@@ -43,11 +46,11 @@ public class MessageBusImpl implements MessageBus {
      */
     public <T> void subscribeEvent(Class<? extends Event<T>> type, MicroService m) {
         synchronized (eventsSubs) {
-            eventsSubs.putIfAbsent(type, new LinkedList<MicroService>());
+            eventsSubs.putIfAbsent(type, new ConcurrentLinkedDeque<MicroService>());
             eventsSubs.get(type).add(m);
         }
         synchronized (unregisterEvent) {
-            unregisterEvent.putIfAbsent(m, new LinkedList<Class<? extends Event>>());
+            unregisterEvent.putIfAbsent(m, new ConcurrentLinkedDeque<Class<? extends Event>>());
             unregisterEvent.get(m).add(type);
         }
 
@@ -62,11 +65,11 @@ public class MessageBusImpl implements MessageBus {
     @Override
     public void subscribeBroadcast(Class<? extends Broadcast> type, MicroService m) {
         synchronized (broadcastsSubs) {
-            broadcastsSubs.putIfAbsent(type, new LinkedList<MicroService>());
+            broadcastsSubs.putIfAbsent(type, new ConcurrentLinkedDeque<MicroService>());
             broadcastsSubs.get(type).add(m);
         }
         synchronized (unregisterBroadcast) {
-            unregisterBroadcast.putIfAbsent(m, new LinkedList<Class<? extends Broadcast>>());
+            unregisterBroadcast.putIfAbsent(m, new ConcurrentLinkedDeque<Class<? extends Broadcast>>());
             unregisterBroadcast.get(m).add(type);
         }
     }
@@ -96,10 +99,10 @@ public class MessageBusImpl implements MessageBus {
 
     @Override
     public void sendBroadcast(Broadcast b) {
-        LinkedList<MicroService> subs = broadcastsSubs.get(b);
-        synchronized (broadcastsSubs) {// in case of unregister we will have out of bounds Exception.
-            for (int i = 0; i < subs.size(); i++) {
-                ConcurrentLinkedQueue<Message> messages = messageQueues.get(subs.get(i)); //get Microservice message queue
+        ConcurrentLinkedDeque<MicroService> subs = broadcastsSubs.get(b.getClass());
+        synchronized (broadcastsSubs) { // in case of unregister we will have out of bounds Exception.
+            for(MicroService service : subs){
+                ConcurrentLinkedQueue<Message> messages =messageQueues.get(service);
                 messages.add(b);
                 if (messages.size() == 1) //if the message we added is the only message in queue we will notify the queue
                     synchronized (messages) {
@@ -120,14 +123,21 @@ public class MessageBusImpl implements MessageBus {
     public <T> Future<T> sendEvent(Event<T> e) {
         Future future = new Future<T>();
         eventFuture.put(e.getClass(), future);
-        LinkedList<MicroService> subs = eventsSubs.get(e.getClass());
+        ConcurrentLinkedDeque<MicroService> subs = eventsSubs.get(e.getClass());
         if (subs == null || subs.size() == 0) {
             return null;
         }
         MicroService microService;
-        synchronized (subs) {
-            microService = subs.pop();
-            subs.addLast(microService); // for round robbin
+        if(e.getClass() != PublishResultsEvent.class) {
+            synchronized (subs) {
+                microService = subs.pop();
+                subs.addLast(microService); // for round robbin
+            }
+        }
+        else { // For PublishResultsEvent
+            synchronized (subs) {
+                microService = subs.getFirst();
+            }
         }
 
         ConcurrentLinkedQueue<Message> messages = messageQueues.get(microService);

@@ -1,6 +1,8 @@
 package bgu.spl.mics.application.services;
 
 import bgu.spl.mics.Callback;
+import bgu.spl.mics.Event;
+import bgu.spl.mics.MessageBusImpl;
 import bgu.spl.mics.MicroService;
 import bgu.spl.mics.application.messages.TerminationBroadcast;
 import bgu.spl.mics.application.messages.TestModelEvent;
@@ -18,14 +20,15 @@ import java.util.Random;
  * {@link bgu.spl.mics.application.messages.TrainModelEvent} and {@link bgu.spl.mics.application.messages.TestModelEvent},
  * in addition to sending the {link DataPreProcessEvent}.
  * This class may not hold references for objects which it is not responsible for.
- *
+ * <p>
  * You can add private fields and public methods to this class.
  * You MAY change constructor signatures and even add new public constructors.
  */
-public class GPUService extends MicroService{
+public class GPUService extends MicroService {
 
     private GPU gpu;
     private Cluster cluster = Cluster.getInstance();
+    private MessageBusImpl messageBus = MessageBusImpl.getInstance();
     private int numberOfBatches;
     private int tick;
     private int currentBatch;
@@ -33,40 +36,48 @@ public class GPUService extends MicroService{
     private Boolean isTraining;
     private Model model;
     private int processedBatchCounter;
+    private TrainModelEvent currTrainModelEvent;
 
 
-    public GPUService(String name , GPU gpu) {
+    public GPUService(String name, GPU gpu) {
         super(name);
         this.gpu = gpu;
-        this.numberOfBatches = gpu.getModel().getData().getSize()/1000; // how many batches is in this model
+        this.numberOfBatches = 0; // how many batches is in this model
         currentBatch = 0;
     }
-    private Callback<TrainModelEvent> trainCallback = (TrainModelEvent trainModelEvent)->{
+
+    private Callback<TrainModelEvent> trainCallback = (TrainModelEvent trainModelEvent) -> {
+        currTrainModelEvent = trainModelEvent;
         isTrainModel = true;
         isTraining = true;
+        numberOfBatches = gpu.getModel().getData().getSize() / 1000;
         model = trainModelEvent.getModel();
         sendBatchesToCluster(model);
     };
 
-    private Callback<TestModelEvent> testCallback = (TestModelEvent testModelEvent)->{
+    private Callback<TestModelEvent> testCallback = (TestModelEvent testModelEvent) -> {
         model = testModelEvent.getModel();
         setResults(model);
+        this.complete(testModelEvent,model);
         //talk with guy about where the future changes
     };
 
-    private Callback<TickBroadcast> tickCallback = (TickBroadcast tickBroadcast)->{
+    private Callback<TickBroadcast> tickCallback = (TickBroadcast tickBroadcast) -> {
 
         //if GPU started training and there are Batches to train
-        if (isTraining && cluster.getGpuQueueSize(gpu)!=0){
+        if (isTraining && cluster.getGpuQueueSize(gpu) != 0) {
             tick++;
-            if (gpu.getTickTimeToTrain()==tick){
-                tick=0;
-                synchronized (cluster) {
-                    cluster.removeFirstFromQueue(gpu);
-                }
+            if (gpu.getTickTimeToTrain() == tick) {
+                gpu.incrementTimeUsed();
+                tick = 0;
+                cluster.removeFirstFromQueue(gpu);
                 processedBatchCounter++;
-                if (processedBatchCounter==numberOfBatches)
-                    isTraining=false;
+                gpu.incrementTotalProcessed();
+                if (processedBatchCounter == numberOfBatches) {
+                    isTraining = false;
+                    processedBatchCounter = 0;
+                    this.complete(currTrainModelEvent,model);
+                }
             }
         }
 
@@ -76,52 +87,47 @@ public class GPUService extends MicroService{
         }
     };
 
-    private Callback<TerminationBroadcast> terminateCallback = (TerminationBroadcast terminationBroadcast) ->{
+    private Callback<TerminationBroadcast> terminateCallback = (TerminationBroadcast terminationBroadcast) -> {
         terminate();
     };
 
     @Override
     protected void initialize() {
-        this.subscribeEvent(TrainModelEvent.class,trainCallback);
+        this.subscribeEvent(TrainModelEvent.class, trainCallback);
         this.subscribeEvent(TestModelEvent.class, testCallback);
         this.subscribeBroadcast(TickBroadcast.class, tickCallback);
         this.subscribeBroadcast(TerminationBroadcast.class, terminateCallback);
     }
 
 
-
-
-    public void setResults(Model model){
+    public void setResults(Model model) {
         Random r = new Random();
         int rand = r.nextInt(100);
 
-        if (model.getStudent().isMsc()){
-            if (rand<60)
+        if (model.getStudent().isMsc()) {
+            if (rand < 60)
                 model.setResultsGood();
             else model.setResultsBad();
-        }
-        else {
-            if (rand<80)
+        } else {
+            if (rand < 80)
                 model.setResultsGood();
             else model.setResultsBad();
         }
     }
 
-    public void sendBatchesToCluster(Model model){
+    public void sendBatchesToCluster(Model model) {
         int queueSize = cluster.getGpuQueueSize(gpu);
-        while(queueSize <= gpu.getDataBatchCapacity() && currentBatch < numberOfBatches) {
-            DataBatch dataBatch = new DataBatch(model.getData().getType(),gpu);
+        while (queueSize <= gpu.getDataBatchCapacity() && currentBatch < numberOfBatches) {
+            DataBatch dataBatch = new DataBatch(model.getData().getType(), gpu);
 
-            synchronized (cluster) {
-                cluster.receiveBatchFromGpu(dataBatch);
-            }
+            cluster.receiveBatchFromGpu(dataBatch);
 
             currentBatch++;
         }
 
-        if (currentBatch==numberOfBatches-1){
+        if (currentBatch == numberOfBatches) {
             isTrainModel = false;
-            currentBatch=0;
+            currentBatch = 0;
         }
     }
 

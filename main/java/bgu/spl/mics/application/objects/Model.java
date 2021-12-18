@@ -77,4 +77,8 @@ public class Model {
     public void setResultsBad(){
         results=Result.Bad;
     }
+
+    public void getResults(){
+
+    }
 }

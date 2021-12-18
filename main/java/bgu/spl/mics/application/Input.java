@@ -5,6 +5,7 @@ import bgu.spl.mics.application.objects.ConfrenceInformation;
 import bgu.spl.mics.application.objects.GPU;
 import bgu.spl.mics.application.objects.Student;
 
+import java.util.Arrays;
 import java.util.Map;
 
 public class Input {
@@ -38,6 +39,7 @@ public class Input {
     }
 
     public ConfrenceInformation [] getConferences(){
+        Arrays.sort(Conferences);
         return Conferences;
     }
     public int getTickTime (){

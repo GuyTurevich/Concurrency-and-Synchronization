@@ -3,6 +3,7 @@ package bgu.spl.mics.application.objects;
 import bgu.spl.mics.application.services.CPUService;
 
 import java.util.Vector;
+import java.util.concurrent.ConcurrentLinkedDeque;
 
 /**
  * Passive object representing a single CPU.
@@ -11,15 +12,16 @@ import java.util.Vector;
  */
 public class CPU {
     private int cores;
-    private Vector <DataBatch> db;
+    private ConcurrentLinkedDeque<DataBatch> db;
     private final Cluster cluster;
     private int tick;
     private int ticksTillEnd;
     private CPUService CPUProcess;
     private Data.Type type;
+    private int timeUsed;
 
 
-    public CPU(Cluster cluster, Vector<DataBatch> db,Data.Type type) {
+    public CPU(Cluster cluster, ConcurrentLinkedDeque<DataBatch> db,Data.Type type) {
         this.cluster=Cluster.getInstance();
         this.db=db;
         tick =0;
@@ -44,12 +46,16 @@ public class CPU {
     }
 
     public int firstBatchTicks(){
-        return db.firstElement().numberOfTicks() * 32/cores;
+        return db.getFirst().numberOfTicks() * 32/cores;
     }
 
     public void finishProcess(){
-        db.remove(0);
+        db.removeFirst();
         this.tick=0;
+    }
+
+    public void incrementTimeUsed(){
+        timeUsed +=firstBatchTicks();
     }
 
 
@@ -61,7 +67,7 @@ public class CPU {
 
 
     //
-    public void run(Vector<DataBatch> db){
+    public void run(ConcurrentLinkedDeque<DataBatch> db){
         this.db=db;
     }
 
@@ -90,7 +96,7 @@ public class CPU {
 //        return processed;
 //    }
 
-    public Vector<DataBatch> getDb(){
+    public ConcurrentLinkedDeque<DataBatch> getDb(){
         return db;
     }
 

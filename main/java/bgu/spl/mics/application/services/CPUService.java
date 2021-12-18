@@ -30,9 +30,10 @@ public class CPUService extends MicroService {
         cpu.increaseTick();
         if (!cpu.dbEmpty()) {
             if (cpu.firstBatchTicks() == cpu.getTick()) {
-                DataBatch processed = cpu.getDb().firstElement(); //retrive processed databatch
+                DataBatch processed = cpu.getDb().getFirst(); //retrive processed databatch
                 cluster.getBatchFromCpu(processed); //send batch to Cluster
                 cpu.finishProcess();
+                cpu.incrementTimeUsed();
             }
         }
     };

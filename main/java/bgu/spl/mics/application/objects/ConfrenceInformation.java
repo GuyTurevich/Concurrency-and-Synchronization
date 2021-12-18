@@ -7,7 +7,7 @@ import java.util.concurrent.ConcurrentLinkedDeque;
  * Passive object representing information on a conference.
  * Add fields and methods to this class as you see fit (including public methods and constructors).
  */
-public class ConfrenceInformation {
+public class ConfrenceInformation implements Comparable<ConfrenceInformation> {
 
     private String name;
     private int date;
@@ -20,6 +20,7 @@ public class ConfrenceInformation {
     public ConcurrentHashMap<Student, ConcurrentLinkedDeque<Model>> getModelsToPublish(){
         return modelsToPublish;
     }
+
     public void addModel(Model model){
         Student student = model.getStudent();
         if(!modelsToPublish.containsKey(student))
@@ -27,4 +28,12 @@ public class ConfrenceInformation {
         modelsToPublish.get(student).add(model);
     }
 
+    @Override
+    public int compareTo(ConfrenceInformation that) {
+        if(this.date < that.date)
+            return -1;
+        else if(this.date > that.date)
+            return 1;
+        return 0;
+    }
 }

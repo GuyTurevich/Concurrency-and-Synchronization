@@ -5,6 +5,7 @@ import bgu.spl.mics.MessageBusImpl;
 
 import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
@@ -17,21 +18,23 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 public class Cluster {
 	private GPU [] gpus;
 	private CPU [] cpus;
-	private ConcurrentHashMap<GPU, ConcurrentLinkedQueue> gpuQueues;
-	private ConcurrentHashMap<CPU,ConcurrentLinkedQueue> cpuQueues; //might not need
-	private ConcurrentHashMap<GPU,ConcurrentLinkedQueue<DataBatch>> processedBatches;
-	//private Vector<DataBatch> processedBatches;
+//	private ConcurrentHashMap<GPU, ConcurrentLinkedDeque<DataBatch>> gpuQueues;
+//	private ConcurrentHashMap<CPU,ConcurrentLinkedQueue<DataBatch>> cpuQueues; //might not need
+	private ConcurrentHashMap<GPU,ConcurrentLinkedDeque<DataBatch>> processedBatches;
 	private static Cluster singleton;
 
 	public Cluster (GPU [] gpus, CPU [] cpus){
 		this.gpus = gpus;
 		this.cpus = cpus;
+		this.processedBatches = new ConcurrentHashMap<GPU,ConcurrentLinkedDeque<DataBatch>>();
 		for(GPU gpu : gpus){
-			gpuQueues.put(gpu,new ConcurrentLinkedQueue());
+//			gpuQueues.put(gpu,new ConcurrentLinkedDeque<DataBatch>());
+			processedBatches.put(gpu,new ConcurrentLinkedDeque<DataBatch>());
 		}
-		for(CPU cpu : cpus){
-			cpuQueues.put(cpu,new ConcurrentLinkedQueue());
-		}
+//		for(CPU cpu : cpus){
+//			cpuQueues.put(cpu,new ConcurrentLinkedQueue<DataBatch>());
+//		}
+
 	}
 
 	public Cluster(){}
@@ -44,9 +47,9 @@ public class Cluster {
 		return singleton;
 	}
 
-	public ConcurrentLinkedQueue getGpuQueue(GPU gpu){
-		return gpuQueues.get(gpu);
-	}
+//	public ConcurrentLinkedDeque<DataBatch> getGpuQueue(GPU gpu){
+//		return gpuQueues.get(gpu);
+//	}
 
 	public void getBatchFromCpu(DataBatch dataBatch){
 		processedBatches.get(dataBatch.getGpu()).add(dataBatch);
@@ -63,7 +66,9 @@ public class Cluster {
 
 	public void receiveBatchFromGpu(DataBatch dataBatch){
 		CPU cpu = getFastestCpu();
-		cpu.addDataBatch(dataBatch);
+		synchronized (cpu) {
+			cpu.addDataBatch(dataBatch);
+		}
 	}
 
 	public int getGpuQueueSize(GPU gpu){
@@ -71,7 +76,10 @@ public class Cluster {
 	}
 
 	public void removeFirstFromQueue(GPU gpu){
-		processedBatches.get(gpu).remove(0);
+		ConcurrentLinkedDeque<DataBatch> gpuDeque = processedBatches.get(gpu);
+		synchronized (gpuDeque) {
+			gpuDeque.removeFirst();
+		}
 	}
 
 

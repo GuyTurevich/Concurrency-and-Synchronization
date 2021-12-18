@@ -4,6 +4,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.util.Vector;
+import java.util.concurrent.ConcurrentLinkedDeque;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -12,7 +13,7 @@ class CPUTest {
 
     @BeforeAll
     void beforeall(){
-        Vector<DataBatch> db=new Vector<>();
+        ConcurrentLinkedDeque<DataBatch> db=new ConcurrentLinkedDeque<DataBatch>();
         cpu = new CPU(Cluster.getInstance(),db, Data.Type.Images);
     }
 
@@ -27,7 +28,7 @@ class CPUTest {
     void receiveBatch() {
         assertTrue(cpu.getDb().isEmpty());
         DataBatch chunk= new DataBatch();
-        cpu.receiveBatch(chunk);
+        cpu.getDb().remove(chunk);
         assertFalse(cpu.getDb().isEmpty());
     }
 }
