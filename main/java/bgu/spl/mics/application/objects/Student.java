@@ -32,12 +32,12 @@ public class Student {
         trainModels = new Model[jsonmodels.length];
     }
 
-    public void incrementPapersRead() {
-        papersRead++;
+    public void increasePapersRead(int numOfPapersRead) {
+        papersRead += numOfPapersRead;
     }
 
-    public void incrementPublications() {
-        publications++;
+    public void increasePublications(int numOfPublications) {
+        publications += numOfPublications;
     }
 
     public int getModelsCounter(){

@@ -2,8 +2,13 @@ package bgu.spl.mics.application.services;
 
 import bgu.spl.mics.*;
 import bgu.spl.mics.application.messages.*;
+import bgu.spl.mics.application.objects.ConfrenceInformation;
 import bgu.spl.mics.application.objects.Model;
 import bgu.spl.mics.application.objects.Student;
+
+import java.util.Iterator;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedDeque;
 
 /**
  * Student is responsible for sending the {@link TrainModelEvent},
@@ -43,7 +48,18 @@ public class StudentService extends MicroService {
         }
         };
 
-    private Callback<PublishResultsEvent> publishResultsEventCallback = (PublishResultsEvent publishResultsEvent) ->{
+    private Callback<PublishConferenceBroadcast> publishConferenceCallback =
+            (PublishConferenceBroadcast publishConferenceBroadcast) ->{
+
+                ConcurrentHashMap<Student, ConcurrentLinkedDeque<Model>> models= publishConferenceBroadcast.getModels();
+                if(models.containsKey(student)) {
+                    ConcurrentLinkedDeque<Model> studentsPublications= models.get(student);
+                    student.increasePublications(studentsPublications.size());
+                    models.remove(student);
+                }
+                for(Student currentStudent : models.keySet())
+                    student.increasePapersRead(models.get(currentStudent).size());
+
 
     };
 
@@ -59,16 +75,9 @@ public class StudentService extends MicroService {
 
     @Override
     protected void initialize() {
-        this.subscribeBroadcast(TickBroadcast.class, tickBroadcastCallback);  //check if works
-        this.subscribeEvent(PublishResultsEvent.class, publishResultsEventCallback);
+        this.subscribeBroadcast(TickBroadcast.class, tickBroadcastCallback);
+        this.subscribeBroadcast(PublishConferenceBroadcast.class, publishConferenceCallback);
         this.subscribeBroadcast(TerminationBroadcast.class, terminateCallback);
-
-        //send first model to MessageBus
-        if (!student.modelIsEmpty()) {
-            TrainModelEvent firstEvent = new TrainModelEvent(student.getTrainModels()[0]); //get first model from model list
-            student.incrementModelCounter();
-            messageBus.sendEvent(firstEvent);
-
         }
     }
-}
+

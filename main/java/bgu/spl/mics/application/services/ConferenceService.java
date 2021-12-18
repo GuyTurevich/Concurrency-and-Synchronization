@@ -26,7 +26,6 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 public class ConferenceService extends MicroService {
     private ConfrenceInformation confrenceInformation;
     int ticksPassed;
-    private ConcurrentLinkedDeque<Model> modelsToPublish;
 
     public ConferenceService(String name, ConfrenceInformation confrenceInformation) {
         super(name);
@@ -38,12 +37,12 @@ public class ConferenceService extends MicroService {
     };
 
     private Callback<PublishResultsEvent> publishCallback = (PublishResultsEvent publishResultsEvent) -> {
-        modelsToPublish.add(publishResultsEvent.getModel());
+        confrenceInformation.addModel(publishResultsEvent.getModel());
     };
 
     private Callback<TickBroadcast> tickCallback = (TickBroadcast tickBroadcast) -> {
         if (++ticksPassed == confrenceInformation.getDate())
-            this.sendBroadcast(new PublishConferenceBroadcast(modelsToPublish));
+            this.sendBroadcast(new PublishConferenceBroadcast(confrenceInformation.getModelsToPublish()));
         MessageBusImpl.getInstance().unregister(this);
         terminate();
     };
