@@ -57,16 +57,19 @@ public class GPUService extends MicroService {
         currTrainModelEvent = trainModelEvent;
         isTrainModel = true;
         isTraining = true;
-        numberOfBatches = gpu.getModel().getData().getSize() / 1000;
+        numberOfBatches = trainModelEvent.getModel().getData().getSize() /1000 ;
         model = trainModelEvent.getModel();
+        model.setStatusToTraining();
+        System.out.println(model.getName() + " Training");
         sendBatchesToCluster(model);
     };
 
     private Callback<TestModelEvent> testCallback = (TestModelEvent testModelEvent) -> {
         model = testModelEvent.getModel();
         setResults(model);
+        model.setStatusToTested();
+        System.out.println(model.getName() + " Tested");
         this.complete(testModelEvent,model);
-        //talk with guy about where the future changes
     };
 
     private Callback<TickBroadcast> tickCallback = (TickBroadcast tickBroadcast) -> {
@@ -83,6 +86,8 @@ public class GPUService extends MicroService {
                 if (processedBatchCounter == numberOfBatches) {
                     isTraining = false;
                     processedBatchCounter = 0;
+                    model.setStatusToTrained();
+                    System.out.println(model.getName() + " Trained");
                     this.complete(currTrainModelEvent,model);
                 }
             }

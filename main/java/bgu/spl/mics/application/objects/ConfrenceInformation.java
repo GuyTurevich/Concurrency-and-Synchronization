@@ -11,7 +11,7 @@ public class ConfrenceInformation implements Comparable<ConfrenceInformation> {
 
     private String name;
     private int date;
-    ConcurrentHashMap<Student, ConcurrentLinkedDeque<Model>> modelsToPublish;
+    ConcurrentHashMap<Student, ConcurrentLinkedDeque<Model>> modelsToPublish= new ConcurrentHashMap<Student, ConcurrentLinkedDeque<Model>>();
 
     public int getDate(){
         return date;

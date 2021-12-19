@@ -9,6 +9,7 @@ import bgu.spl.mics.application.objects.Student;
 import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.concurrent.locks.Lock;
 
 /**
  * Student is responsible for sending the {@link TrainModelEvent},
@@ -33,10 +34,10 @@ public class StudentService extends MicroService {
     }
 
     private Callback<TickBroadcast> tickBroadcastCallback = (TickBroadcast tickBroadcast) -> {
-
-
         if (currentFuture == null) {
-            currentModel = student.getNextModel();
+            synchronized (this) {
+                currentModel = student.getNextModel();
+            }
             if(currentModel != null)
                 currentFuture = this.sendEvent(new TrainModelEvent(currentModel));
         }
@@ -55,18 +56,20 @@ public class StudentService extends MicroService {
         };
 
     private Callback<PublishConferenceBroadcast> publishConferenceCallback =
-            (PublishConferenceBroadcast publishConferenceBroadcast) ->{
+            (PublishConferenceBroadcast publishConferenceBroadcast) -> {
 
                 ConcurrentHashMap<Student, ConcurrentLinkedDeque<Model>> models = publishConferenceBroadcast.getModels();
-                if(models.containsKey(student)) {
-                    ConcurrentLinkedDeque<Model> studentsPublications= models.get(student);
-                    student.increasePublications(studentsPublications.size());
-                    models.remove(student);
-                }
-                if(!models.isEmpty()) {
+                if (models!=null){
+                    if (models.containsKey(student)) {
+                        ConcurrentLinkedDeque<Model> studentsPublications = models.get(student);
+                        student.increasePublications(studentsPublications.size());
+                        models.remove(student);
+                    }
+                if (!models.isEmpty()) {
                     for (Student currentStudent : models.keySet())
                         student.increasePapersRead(models.get(currentStudent).size());
                 }
+            }
 
     };
 

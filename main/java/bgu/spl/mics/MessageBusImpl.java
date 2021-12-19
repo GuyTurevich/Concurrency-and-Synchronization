@@ -6,6 +6,7 @@ import java.util.LinkedList;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.LinkedBlockingDeque;
 
 
 /**
@@ -15,21 +16,21 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  */
 public class MessageBusImpl implements MessageBus {
     private static MessageBusImpl singleton;
-    private ConcurrentHashMap<MicroService, ConcurrentLinkedQueue<Message>> messageQueues;
+    private ConcurrentHashMap<MicroService, LinkedBlockingDeque<Message>> messageQueues;
     private ConcurrentHashMap<Class<? extends Event>, ConcurrentLinkedDeque<MicroService>> eventsSubs;
     private ConcurrentHashMap<Class<? extends Broadcast>, ConcurrentLinkedDeque<MicroService>> broadcastsSubs;
     private ConcurrentHashMap<MicroService, ConcurrentLinkedDeque<Class<? extends Event>>> unregisterEvent; // reverse eventSubscribers object
     private ConcurrentHashMap<MicroService, ConcurrentLinkedDeque<Class<? extends Broadcast>>> unregisterBroadcast; // reverse broadcasts object
-    private ConcurrentHashMap<Class<? extends Event>, Future> eventFuture; //stores current events + their future obj
+    private ConcurrentHashMap<Event<?>, Future> eventFuture; //stores current events + their future obj
 
 
     public MessageBusImpl() {
-        this.messageQueues = new ConcurrentHashMap<MicroService, ConcurrentLinkedQueue<Message>>();
+        this.messageQueues = new ConcurrentHashMap<MicroService, LinkedBlockingDeque<Message>>();
         this.eventsSubs = new ConcurrentHashMap<Class<? extends Event>, ConcurrentLinkedDeque<MicroService>>();
         this.broadcastsSubs = new ConcurrentHashMap<Class<? extends Broadcast>, ConcurrentLinkedDeque<MicroService>>();
         this.unregisterEvent = new ConcurrentHashMap<MicroService, ConcurrentLinkedDeque<Class<? extends Event>>>();
         this.unregisterBroadcast = new ConcurrentHashMap<MicroService, ConcurrentLinkedDeque<Class<? extends Broadcast>>>();
-        this.eventFuture = new ConcurrentHashMap<Class<? extends Event>, Future>();
+        this.eventFuture = new ConcurrentHashMap<Event<?>, Future>();
 
     }
 
@@ -82,7 +83,6 @@ public class MessageBusImpl implements MessageBus {
      */
     @Override
     public <T> void complete(Event<T> e, T result) {
-
         eventFuture.get(e).resolve(result);
         synchronized (eventFuture.get(e)) {
             eventFuture.get(e).notifyAll();
@@ -101,13 +101,13 @@ public class MessageBusImpl implements MessageBus {
     public void sendBroadcast(Broadcast b) {
         ConcurrentLinkedDeque<MicroService> subs = broadcastsSubs.get(b.getClass());
         synchronized (broadcastsSubs) { // in case of unregister we will have out of bounds Exception.
-            for(MicroService service : subs){
-                ConcurrentLinkedQueue<Message> messages =messageQueues.get(service);
-                messages.add(b);
-                if (messages.size() == 1) //if the message we added is the only message in queue we will notify the queue
-                    synchronized (messages) {
-                        messages.notify();
-                    }
+            for (MicroService service : subs) {
+                    LinkedBlockingDeque<Message> messages = messageQueues.get(service);
+                    messages.add(b);
+                    if (messages.size() == 1) //if the message we added is the only message in queue we will notify the queue
+                        synchronized (messages) {
+                            messages.notify();
+                        }
             }
         }
     }
@@ -122,25 +122,24 @@ public class MessageBusImpl implements MessageBus {
     @Override
     public <T> Future<T> sendEvent(Event<T> e) {
         Future future = new Future<T>();
-        eventFuture.put(e.getClass(), future);
+        eventFuture.put(e, future);
         ConcurrentLinkedDeque<MicroService> subs = eventsSubs.get(e.getClass());
         if (subs == null || subs.size() == 0) {
             return null;
         }
         MicroService microService;
-        if(e.getClass() != PublishResultsEvent.class) {
+        if (e.getClass() != PublishResultsEvent.class) {
             synchronized (subs) {
                 microService = subs.pop();
                 subs.addLast(microService); // for round robbin
             }
-        }
-        else { // For PublishResultsEvent
+        } else { // For PublishResultsEvent
             synchronized (subs) {
                 microService = subs.getFirst();
             }
         }
 
-        ConcurrentLinkedQueue<Message> messages = messageQueues.get(microService);
+        LinkedBlockingDeque<Message> messages = messageQueues.get(microService);
         messageQueues.get(microService).add(e); // adding the event to messagesQueues
 
         if (messages.size() == 1) { //if the message we added is the only message in queue we will notify the queue
@@ -154,9 +153,12 @@ public class MessageBusImpl implements MessageBus {
 
     @Override
     public void register(MicroService m) {
-
-        if (!messageQueues.containsKey(m))
-            messageQueues.put(m, new ConcurrentLinkedQueue<Message>());
+        synchronized (messageQueues) {
+            if (!messageQueues.containsKey(m)) {
+                messageQueues.put(m, new LinkedBlockingDeque<Message>());
+                System.out.println(m.getName()+ " Reg");
+            }
+        }
     }
 
     /**
@@ -172,11 +174,12 @@ public class MessageBusImpl implements MessageBus {
                 }
             }
             unregisterEvent.remove(m);
+            System.out.println(m.getName() + " UnReg");
         }
 
-        if (unregisterBroadcast.get(m)!=null){
-            synchronized (eventsSubs){
-                for (Class<? extends Broadcast> broadcast : unregisterBroadcast.get(m)){
+        if (unregisterBroadcast.get(m) != null) {
+            synchronized (eventsSubs) {
+                for (Class<? extends Broadcast> broadcast : unregisterBroadcast.get(m)) {
                     broadcastsSubs.get(broadcast).remove();
                 }
             }
@@ -184,8 +187,6 @@ public class MessageBusImpl implements MessageBus {
         }
 
         messageQueues.remove(m); // remove message
-
-
 
 
     }
@@ -199,19 +200,20 @@ public class MessageBusImpl implements MessageBus {
      */
     @Override
     public Message awaitMessage(MicroService m) throws InterruptedException {
-        ConcurrentLinkedQueue<Message> queue = messageQueues.get(m);
-        if (queue.isEmpty()) {
-            synchronized (queue) {
-                if (queue.isEmpty()) {
-                    try {
-                        queue.wait(); // wait for notify on the message queue (sendEvent,sendBroadcast)
-                    } catch (InterruptedException i) {
-                    }
-                }
-            }
-        }
-        Message message = queue.remove();
-        return message;
+        return messageQueues.get(m).take();
+//        ConcurrentLinkedQueue<Message> queue = messageQueues.get(m);
+//        if (queue.isEmpty()) {
+//            synchronized (queue) {
+//                if (queue.isEmpty()) {
+//                    try {
+//                        queue.wait(); // wait for notify on the message queue (sendEvent,sendBroadcast)
+//                    } catch (InterruptedException i) {
+//                    }
+//                }
+//            }
+//        }
+//        Message message = queue.remove();
+//        return message;
     }
 
 
@@ -230,7 +232,6 @@ public class MessageBusImpl implements MessageBus {
 //    public boolean isDoneFuture(Event event){
 //        return eventFuture.get(event).isDone();
 //    }
-
 
 
 }

@@ -43,6 +43,8 @@ public class TimeService extends MicroService {
                 if (timePassed < totalDuration) {
                     sendBroadcast(tickBroadcast);
                     timePassed++;
+                    if(timePassed%1000==0)
+                        System.out.println(timePassed/1000);
                 }
                 else if(timePassed == totalDuration) {
                     sendBroadcast(new TerminationBroadcast());

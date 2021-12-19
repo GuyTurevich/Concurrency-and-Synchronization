@@ -42,17 +42,23 @@ public class ConferenceService extends MicroService {
     };
 
     private Callback<TickBroadcast> tickCallback = (TickBroadcast tickBroadcast) -> {
-        if (++ticksPassed == confrenceInformation.getDate())
+        if(ticksPassed%1000==0)
+            System.out.println(ticksPassed);
+
+        if (++ticksPassed == confrenceInformation.getDate()) {
             this.sendBroadcast(new PublishConferenceBroadcast(confrenceInformation.getModelsToPublish()));
-        MessageBusImpl.getInstance().unregister(this);
-        terminate();
+            synchronized (this) {
+                MessageBusImpl.getInstance().unregister(this);
+                terminate();
+            }
+        }
     };
 
     @Override
     protected void initialize() {
         this.subscribeBroadcast(TerminationBroadcast.class, terminateCallback);
         this.subscribeEvent(PublishResultsEvent.class, publishCallback);
-        this.subscribeBroadcast(TickBroadcast.class,tickCallback);
+        this.subscribeBroadcast(TickBroadcast.class, tickCallback);
     }
 
 

@@ -31,6 +31,7 @@ public class Cluster {
 //			gpuQueues.put(gpu,new ConcurrentLinkedDeque<DataBatch>());
 			processedBatches.put(gpu,new ConcurrentLinkedDeque<DataBatch>());
 		}
+		singleton = this;
 //		for(CPU cpu : cpus){
 //			cpuQueues.put(cpu,new ConcurrentLinkedQueue<DataBatch>());
 //		}

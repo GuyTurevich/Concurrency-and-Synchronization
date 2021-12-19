@@ -160,7 +160,6 @@ public abstract class MicroService implements Runnable {
     public final void run() {
         messageBus.register(this);
         initialize();
-
         while (!terminated) {
             try {
                 Message message = messageBus.awaitMessage(this);

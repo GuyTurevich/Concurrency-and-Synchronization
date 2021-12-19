@@ -81,4 +81,8 @@ public class Model {
     public void getResults(){
 
     }
+
+    public String getName(){
+        return name;
+    }
 }
