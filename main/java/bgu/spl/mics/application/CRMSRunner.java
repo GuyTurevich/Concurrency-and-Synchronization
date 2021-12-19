@@ -48,7 +48,7 @@ public class CRMSRunner {
         }
 
         String outputString = createOutputString(input,cpus,gpus);
-        File outputFile = new File("/home/guy/SPL/ass2/output.txt");
+        File outputFile = new File("./output.txt");
         try {
             FileWriter writer = new FileWriter("output.txt");
             writer.write(outputString);
