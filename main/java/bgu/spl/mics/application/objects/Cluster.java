@@ -105,7 +105,7 @@ public class Cluster {
 	}
 
 	public DataBatch getBatchToSend() {
-		synchronized (sendToCPU) {
+
 			DataBatch toSend = sendToCPU.get(gpus[roundRobin]).pollFirst();
 			int count = 0;
 			while (toSend == null && count != gpus.length) {
@@ -114,7 +114,7 @@ public class Cluster {
 				count++;
 			}
 			return toSend;
-		}
+
 	}
 
 	public void receiveBatchFromMap() {
