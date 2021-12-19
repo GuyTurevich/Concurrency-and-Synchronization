@@ -32,6 +32,31 @@ public class Student {
         trainModels = new Model[models.length];
     }
 
+    public String getName(){
+        return this.name;
+    }
+
+    public String getDepartment(){
+        return this.department;
+    }
+
+    public String getStatus(){
+        if(status == Degree.MSc)
+            return "MSc";
+        else if (status == Degree.PhD)
+            return "PhD";
+        else
+            return null;
+    }
+
+    public int getPublications(){
+        return publications;
+    }
+
+    public int getPapersRead(){
+        return papersRead;
+    }
+
     public void increasePapersRead(int numOfPapersRead) {
         papersRead += numOfPapersRead;
     }

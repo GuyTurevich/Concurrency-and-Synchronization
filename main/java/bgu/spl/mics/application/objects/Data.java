@@ -32,6 +32,18 @@ public class Data {
         return type;
     }
 
+    public String getTypeString(){
+        if(type == Type.Images)
+            return "Images";
+        else if(type == Type.Text)
+            return "Text";
+        else if(type == Type.Tabular)
+            return "Tabular";
+        else
+            return null;
+
+    }
+
     public int getSize(){
         return size;
     }

@@ -99,11 +99,13 @@ public class MessageBusImpl implements MessageBus {
 
     @Override
     public void sendBroadcast(Broadcast b) {
-        ConcurrentLinkedDeque<MicroService> subs = broadcastsSubs.get(b.getClass());
+        ConcurrentLinkedDeque<MicroService> subs;
         synchronized (broadcastsSubs) {// in case of unregister we will have out of bounds Exception.
-            synchronized (messageQueues) {
-                for (MicroService service : subs) {
-                    LinkedBlockingDeque<Message> messages = messageQueues.get(service);
+            subs = broadcastsSubs.get(b.getClass());
+        synchronized (messageQueues) {
+            for (MicroService service : subs) {
+                LinkedBlockingDeque<Message> messages = messageQueues.get(service);
+                if (messages != null) {
                     messages.add(b);
                     if (messages.size() == 1) //if the message we added is the only message in queue we will notify the queue
                         synchronized (messages) {
@@ -111,6 +113,7 @@ public class MessageBusImpl implements MessageBus {
                         }
                 }
             }
+        }
         }
     }
 
@@ -158,7 +161,7 @@ public class MessageBusImpl implements MessageBus {
         synchronized (messageQueues) {
             if (!messageQueues.containsKey(m)) {
                 messageQueues.put(m, new LinkedBlockingDeque<Message>());
-                System.out.println(m.getName()+ " Reg");
+                System.out.println(m.getName() + " Reg");
             }
         }
     }
@@ -188,8 +191,9 @@ public class MessageBusImpl implements MessageBus {
             unregisterBroadcast.remove(m);
         }
 
-        messageQueues.remove(m); // remove message
-
+        synchronized (messageQueues) {
+            messageQueues.remove(m); // remove message
+        }
 
     }
 
@@ -219,21 +223,9 @@ public class MessageBusImpl implements MessageBus {
     }
 
 
-    public Boolean isSubscribedToEvent(Event event) {
-        return eventsSubs.contains(event);
-    }
-
-    public Boolean isSubscribedToBroadCast(Broadcast broadcast) {
-        return broadcastsSubs.contains(broadcast);
-    }
-
-    public boolean isRegistered(MicroService microService) {
+    public boolean isRegistered(MicroService microService) { //ONLY FOR TESTING
         return messageQueues.contains(microService);
     }
-
-//    public boolean isDoneFuture(Event event){
-//        return eventFuture.get(event).isDone();
-//    }
 
 
 }

@@ -66,11 +66,12 @@ public class GPU {
     }
 
 
-
-
-
-
-
+    public int getTimeUsed() {
+        return timeUsed;
+    }
+    public int getBatchesProcessed() {
+        return processedBatchesTotal;
+    }
 
 
 

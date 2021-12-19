@@ -78,8 +78,24 @@ public class Model {
         results=Result.Bad;
     }
 
-    public void getResults(){
+    public String getResultsString(){
+        if(results == Result.Good)
+            return "Good";
+        else if(results == Result.None)
+            return "None";
+        else if(results ==Result.Bad)
+            return "Bad";
+        else
+            return null;
 
+    }
+
+    public String getTypeString(){
+        return data.getTypeString();
+    }
+
+    public int getSize(){
+        return data.getSize();
     }
 
     public String getName(){

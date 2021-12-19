@@ -115,4 +115,7 @@ public class CPU {
         return tick;
     }
 
+    public int getTimeUsed() {
+        return timeUsed;
+    }
 }

@@ -11,29 +11,44 @@ public class ConfrenceInformation implements Comparable<ConfrenceInformation> {
 
     private String name;
     private int date;
-    ConcurrentHashMap<Student, ConcurrentLinkedDeque<Model>> modelsToPublish= new ConcurrentHashMap<Student, ConcurrentLinkedDeque<Model>>();
+    ConcurrentHashMap<Student, ConcurrentLinkedDeque<Model>> modelsToPublish = new ConcurrentHashMap<Student, ConcurrentLinkedDeque<Model>>();
 
-    public int getDate(){
+    public int getDate() {
         return date;
     }
 
-    public ConcurrentHashMap<Student, ConcurrentLinkedDeque<Model>> getModelsToPublish(){
+    public ConcurrentHashMap<Student, ConcurrentLinkedDeque<Model>> getModelsToPublish() {
         return modelsToPublish;
     }
 
-    public void addModel(Model model){
+    public void addModel(Model model) {
         Student student = model.getStudent();
-        if(!modelsToPublish.containsKey(student))
+        if (!modelsToPublish.containsKey(student))
             modelsToPublish.put(student, new ConcurrentLinkedDeque<Model>());
         modelsToPublish.get(student).add(model);
     }
 
     @Override
     public int compareTo(ConfrenceInformation that) {
-        if(this.date < that.date)
+        if (this.date < that.date)
             return -1;
-        else if(this.date > that.date)
+        else if (this.date > that.date)
             return 1;
         return 0;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public Model[] getModelsArray() {
+
+        ConcurrentLinkedDeque<Model> allModels = new ConcurrentLinkedDeque<Model>();
+        for (ConcurrentLinkedDeque<Model> models : modelsToPublish.values()) {
+            for (Model model : models) {
+                allModels.add(model);
+            }
+        }
+        return allModels.toArray(new Model[allModels.size()]);
     }
 }
