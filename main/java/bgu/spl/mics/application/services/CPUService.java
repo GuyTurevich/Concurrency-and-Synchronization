@@ -27,15 +27,16 @@ public class CPUService extends MicroService {
     }
 
     private Callback<TickBroadcast> TickBroadcastCallBack = (TickBroadcast tickBroadcast) ->{
-        cpu.increaseTick();
         if (!cpu.dbEmpty()) {
-            if (cpu.firstBatchTicks() == cpu.getTick()) {
-                DataBatch processed = cpu.getDb().getFirst(); //retrive processed databatch
-                cluster.getBatchFromCpu(processed); //send batch to Cluster
-                cpu.finishProcess();
-                cpu.incrementTimeUsed();
+                cpu.increaseTick(); //IncreaseTick if we have DataBatchesToProcess
+                if (cpu.firstBatchTicks() == cpu.getTick()) {
+                    DataBatch processed = cpu.getDb().getFirst(); //retrive processed databatch
+                    cluster.getBatchFromCpu(processed); //send batch to Cluster
+                    cpu.incrementTimeUsed();
+                    cpu.finishProcess();
+
+                }
             }
-        }
     };
 
 

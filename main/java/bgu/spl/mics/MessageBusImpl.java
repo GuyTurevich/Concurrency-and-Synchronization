@@ -100,14 +100,16 @@ public class MessageBusImpl implements MessageBus {
     @Override
     public void sendBroadcast(Broadcast b) {
         ConcurrentLinkedDeque<MicroService> subs = broadcastsSubs.get(b.getClass());
-        synchronized (broadcastsSubs) { // in case of unregister we will have out of bounds Exception.
-            for (MicroService service : subs) {
+        synchronized (broadcastsSubs) {// in case of unregister we will have out of bounds Exception.
+            synchronized (messageQueues) {
+                for (MicroService service : subs) {
                     LinkedBlockingDeque<Message> messages = messageQueues.get(service);
                     messages.add(b);
                     if (messages.size() == 1) //if the message we added is the only message in queue we will notify the queue
                         synchronized (messages) {
                             messages.notify();
                         }
+                }
             }
         }
     }

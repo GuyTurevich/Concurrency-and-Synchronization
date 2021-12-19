@@ -96,6 +96,7 @@ public class GPUService extends MicroService {
         //Send More batches to CPU through Cluster
         if (isTrainModel) {
             sendBatchesToCluster(model);
+//            System.out.println(model.getName() + " SendingBatchesTocluster");
         }
     };
 
@@ -129,12 +130,12 @@ public class GPUService extends MicroService {
 
     public void sendBatchesToCluster(Model model) {
         int queueSize = cluster.getGpuQueueSize(gpu);
-        while (queueSize <= gpu.getDataBatchCapacity() && currentBatch < numberOfBatches) {
-            DataBatch dataBatch = new DataBatch(model.getData().getType(), gpu);
-
-            cluster.receiveBatchFromGpu(dataBatch);
-
-            currentBatch++;
+        synchronized (gpu) {
+            while (queueSize <= gpu.getDataBatchCapacity() && currentBatch < numberOfBatches) {
+                DataBatch dataBatch = new DataBatch(model.getData().getType(), gpu);
+                cluster.receiveBatchFromGpu(dataBatch);
+                currentBatch++;
+            }
         }
 
         if (currentBatch == numberOfBatches) {
