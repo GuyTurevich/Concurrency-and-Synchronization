@@ -151,6 +151,7 @@ public class CRMSRunner {
         output += "\"cpuTimeUsed\": " + cpuTimeUsed + ",\n";
         output += "\"gpuTimeUsed\": " + gpuTimeUsed + ",\n";
         output += "\"batchesProcessed\": " + batchesProcessed + ",\n";
+        output += "\"Duration\": " + input.getDuration() + ",\n";
         return output;
     }
 }

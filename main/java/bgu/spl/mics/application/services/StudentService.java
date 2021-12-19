@@ -47,12 +47,15 @@ public class StudentService extends MicroService {
             if (status.equals("Trained")) {
                 currentFuture = this.sendEvent(new TestModelEvent(student.isMsc(), currentModel));
             }
+
             else if (status.equals("Tested")) {
                 if (currentModel.isResultGood()){
                     System.out.println("PUBLISHING");
                     this.sendEvent(new PublishResultsEvent(currentModel));
                 }
-                currentFuture = null;
+                synchronized (this) {
+                    currentFuture = null;
+                }
             }
         }
         };
