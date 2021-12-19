@@ -15,6 +15,8 @@ public class Input {
     private ConfrenceInformation [] Conferences;
     private int TickTime;
     private int Duration;
+//    private CPU [] CPUS;
+//    private GPU [] GPUS;
 
 
     public Student [] getStudents (){
@@ -37,6 +39,14 @@ public class Input {
         }
         return cpus;
     }
+
+//    public void setCPUS(){
+//        CPU [] cpus = new CPU[CPUS.length];
+//        for (int i=0 ; i<CPUS.length; i++){
+//            cpus[i]=new CPU(CPUS[i]);
+//        }
+//        return cpus;
+//    }
 
     public ConfrenceInformation [] getConferences(){
         Arrays.sort(Conferences);

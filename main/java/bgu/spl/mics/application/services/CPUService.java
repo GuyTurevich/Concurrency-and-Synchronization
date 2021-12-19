@@ -42,6 +42,7 @@ public class CPUService extends MicroService {
 
     private Callback<TerminationBroadcast> terminateCallback = (TerminationBroadcast terminationBroadcast) ->{
         terminate();
+        System.out.println(this.getName() + "Terminated");
     };
 
     @Override

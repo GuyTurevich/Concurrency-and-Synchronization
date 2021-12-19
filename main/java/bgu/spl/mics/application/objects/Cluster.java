@@ -18,18 +18,21 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 public class Cluster {
 	private GPU [] gpus;
 	private CPU [] cpus;
-//	private ConcurrentHashMap<GPU, ConcurrentLinkedDeque<DataBatch>> gpuQueues;
-//	private ConcurrentHashMap<CPU,ConcurrentLinkedQueue<DataBatch>> cpuQueues; //might not need
+	private ConcurrentHashMap<GPU, ConcurrentLinkedDeque<DataBatch>> sendToCPU;
 	private ConcurrentHashMap<GPU,ConcurrentLinkedDeque<DataBatch>> processedBatches;
 	private static Cluster singleton;
+	private int roundRobin;
 
 	public Cluster (GPU [] gpus, CPU [] cpus){
 		this.gpus = gpus;
 		this.cpus = cpus;
+		this.roundRobin = 0;
 		this.processedBatches = new ConcurrentHashMap<GPU,ConcurrentLinkedDeque<DataBatch>>();
+		this.sendToCPU = new ConcurrentHashMap<GPU,ConcurrentLinkedDeque<DataBatch>>();
 		for(GPU gpu : gpus){
-//			gpuQueues.put(gpu,new ConcurrentLinkedDeque<DataBatch>());
+			sendToCPU.put(gpu,new ConcurrentLinkedDeque<DataBatch>());
 			processedBatches.put(gpu,new ConcurrentLinkedDeque<DataBatch>());
+
 		}
 		singleton = this;
 //		for(CPU cpu : cpus){
@@ -54,6 +57,9 @@ public class Cluster {
 
 	public void getBatchFromCpu(DataBatch dataBatch){
 		processedBatches.get(dataBatch.getGpu()).add(dataBatch);
+		receiveBatchFromMap();
+
+
 	}
 
 	public CPU getFastestCpu(){
@@ -65,10 +71,18 @@ public class Cluster {
 		return fastest;
 	}
 
-	public void receiveBatchFromGpu(DataBatch dataBatch){
-		CPU cpu = getFastestCpu();
-		synchronized (cpu) {
-			cpu.addDataBatch(dataBatch);
+	public void receiveBatchFromGpu(DataBatch dataBatch) {
+		synchronized (sendToCPU) {
+			sendToCPU.get(dataBatch.getGpu()).add(dataBatch);
+			CPU cpu = getFastestCpu();
+			if (cpu.getDbSize() < 100) {
+				DataBatch toSend = getBatchToSend();
+				if (toSend!=null) {
+					synchronized (cpu) {
+						cpu.addDataBatch(toSend);
+					}
+				}
+			}
 		}
 	}
 
@@ -83,6 +97,39 @@ public class Cluster {
 		}
 	}
 
+	public void roundRobin(){
+		if (roundRobin+1 !=gpus.length)
+			roundRobin++;
+		else roundRobin =0;
+
+	}
+
+	public DataBatch getBatchToSend() {
+		synchronized (sendToCPU) {
+			DataBatch toSend = sendToCPU.get(gpus[roundRobin]).pollFirst();
+			int count = 0;
+			while (toSend == null && count != gpus.length) {
+				roundRobin();
+				toSend = sendToCPU.get(gpus[roundRobin]).pollFirst();
+				count++;
+			}
+			return toSend;
+		}
+	}
+
+	public void receiveBatchFromMap() {
+		synchronized (sendToCPU) {
+			CPU cpu = getFastestCpu();
+			if (cpu.getDbSize() < 100) {
+					DataBatch toSend = getBatchToSend();
+					if (toSend!=null) {
+						synchronized (cpu) {
+							cpu.addDataBatch(toSend);
+						}
+					}
+				}
+		}
+	}
 
 
 

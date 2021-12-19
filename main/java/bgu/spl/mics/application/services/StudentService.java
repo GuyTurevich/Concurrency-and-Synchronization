@@ -38,8 +38,8 @@ public class StudentService extends MicroService {
             synchronized (this) {
                 currentModel = student.getNextModel();
             }
-            if(currentModel != null)
-                currentFuture = this.sendEvent(new TrainModelEvent(currentModel));
+                if (currentModel != null)
+                    currentFuture = this.sendEvent(new TrainModelEvent(currentModel));
         }
         else if (currentFuture.isDone()) {
             String status = currentModel.getStatusString();
@@ -77,6 +77,7 @@ public class StudentService extends MicroService {
 
     private Callback<TerminationBroadcast> terminateCallback = (TerminationBroadcast terminationBroadcast) ->{
         terminate();
+        System.out.println(this.getName() + " Terminated");
     };
 
 

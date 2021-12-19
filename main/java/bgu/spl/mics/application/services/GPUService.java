@@ -37,9 +37,11 @@ public class GPUService extends MicroService {
     private Model model;
     private int processedBatchCounter;
     private TrainModelEvent currTrainModelEvent;
+    private int duration;
+    private int timePassed;
 
 
-    public GPUService(String name, GPU gpu) {
+    public GPUService(String name, GPU gpu, int duration) {
         super(name);
         this.gpu = gpu;
         this.numberOfBatches = 0; // how many batches is in this model
@@ -51,13 +53,15 @@ public class GPUService extends MicroService {
         model = null;
         processedBatchCounter = 0;
         currTrainModelEvent = null;
+        this.duration = duration;
+        timePassed = 0;
     }
 
     private Callback<TrainModelEvent> trainCallback = (TrainModelEvent trainModelEvent) -> {
         currTrainModelEvent = trainModelEvent;
         isTrainModel = true;
         isTraining = true;
-        numberOfBatches = trainModelEvent.getModel().getData().getSize() /1000 ;
+        numberOfBatches = trainModelEvent.getModel().getData().getSize() /1000;
         model = trainModelEvent.getModel();
         model.setStatusToTraining();
         System.out.println(model.getName() + " Training");
@@ -72,8 +76,11 @@ public class GPUService extends MicroService {
         this.complete(testModelEvent,model);
     };
 
-    private Callback<TickBroadcast> tickCallback = (TickBroadcast tickBroadcast) -> {
 
+    private Callback<TickBroadcast> tickCallback = (TickBroadcast tickBroadcast) -> {
+        timePassed++;
+        if(timePassed >= duration)
+            this.terminate();
         //if GPU started training and there are Batches to train
         if (isTraining && cluster.getGpuQueueSize(gpu) != 0) {
             tick++;
@@ -86,7 +93,7 @@ public class GPUService extends MicroService {
                     gpu.incrementTotalProcessed();
                 }
                 if (processedBatchCounter == numberOfBatches) {
-                    synchronized (this) {
+                    synchronized (currTrainModelEvent) {
                         isTraining = false;
                         processedBatchCounter = 0;
                         model.setStatusToTrained();
@@ -97,6 +104,7 @@ public class GPUService extends MicroService {
             }
         }
 
+
         //Send More batches to CPU through Cluster
         if (isTrainModel) {
             sendBatchesToCluster(model);
@@ -106,6 +114,7 @@ public class GPUService extends MicroService {
 
     private Callback<TerminationBroadcast> terminateCallback = (TerminationBroadcast terminationBroadcast) -> {
         terminate();
+        System.out.println(this.getName() + " Terminated");
     };
 
     @Override
@@ -137,6 +146,8 @@ public class GPUService extends MicroService {
         synchronized (gpu) {
             while (cluster.getGpuQueueSize(gpu) <= gpu.getDataBatchCapacity() && currentBatch < numberOfBatches) {
                 DataBatch dataBatch = new DataBatch(model.getData().getType(), gpu);
+//                if (currentBatch>5000)
+//                System.out.println(currentBatch);
                 cluster.receiveBatchFromGpu(dataBatch);
                 currentBatch++;
             }

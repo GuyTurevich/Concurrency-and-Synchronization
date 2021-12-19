@@ -153,6 +153,7 @@ public class GPU {
 
 
 
+
     /**
      * this function talk to the Cluster and receives DataBatches that are being sent.
      *

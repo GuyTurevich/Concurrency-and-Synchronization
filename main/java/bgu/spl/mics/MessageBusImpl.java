@@ -84,10 +84,12 @@ public class MessageBusImpl implements MessageBus {
     @Override
     public <T> void complete(Event<T> e, T result) {
         eventFuture.get(e).resolve(result);
+//        synchronized (eventFuture.get(e)) {
+//            eventFuture.get(e).notifyAll();
+//        }
         synchronized (eventFuture.get(e)) {
-            eventFuture.get(e).notifyAll();
+            eventFuture.remove(e);
         }
-        eventFuture.remove(e);
     }
 
 

@@ -33,7 +33,6 @@ public class CPU {
             db.add(dataBatch);
             ticksTillEnd += (32/cores)*dataBatch.numberOfTicks();
         }
-
     }
 
     public int getTicksTillEnd(){
@@ -58,6 +57,11 @@ public class CPU {
 
     public void incrementTimeUsed(){
         timeUsed +=firstBatchTicks();
+    }
+
+
+    public int getDbSize(){
+        return db.size();
     }
 
 

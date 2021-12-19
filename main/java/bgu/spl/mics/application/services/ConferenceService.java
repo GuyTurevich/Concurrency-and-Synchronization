@@ -16,7 +16,7 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 
 /**
  * Conference service is in charge of
- * aggregating good results and publishing them via the {@link PublishConfrenceBroadcast},
+ * aggregating good results and publishing them via the {link PublishConfrenceBroadcast},
  * after publishing results the conference will unregister from the system.
  * This class may not hold references for objects which it is not responsible for.
  * <p>
@@ -35,6 +35,7 @@ public class ConferenceService extends MicroService {
 
     private Callback<TerminationBroadcast> terminateCallback = (TerminationBroadcast terminationBroadcast) -> {
         terminate();
+        System.out.println(this.getName() + " Terminate");
     };
 
     private Callback<PublishResultsEvent> publishCallback = (PublishResultsEvent publishResultsEvent) -> {
@@ -42,8 +43,6 @@ public class ConferenceService extends MicroService {
     };
 
     private Callback<TickBroadcast> tickCallback = (TickBroadcast tickBroadcast) -> {
-        if(ticksPassed%1000==0)
-            System.out.println(ticksPassed);
 
         if (++ticksPassed == confrenceInformation.getDate()) {
             this.sendBroadcast(new PublishConferenceBroadcast(confrenceInformation.getModelsToPublish()));

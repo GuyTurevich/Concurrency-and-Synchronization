@@ -5,7 +5,6 @@ import bgu.spl.mics.MicroService;
 import bgu.spl.mics.application.messages.TerminationBroadcast;
 import bgu.spl.mics.application.messages.TickBroadcast;
 
-import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -22,7 +21,7 @@ public class TimeService extends MicroService {
 
     private int tickDuration;
     private int totalDuration;
-    private int timePassed;
+    private int ticksPassed;
     private TickBroadcast tickBroadcast;
 
     public TimeService(int tickDuration, int totalDuration) {
@@ -30,23 +29,31 @@ public class TimeService extends MicroService {
         this.tickDuration = tickDuration;
         this.totalDuration = totalDuration;
         this.tickBroadcast = new TickBroadcast();
-        timePassed = 0;
+        ticksPassed = 0;
     }
 
+    private Callback<TerminationBroadcast> terminateCallback = (TerminationBroadcast terminationBroadcast) -> {
+        terminate();
+        System.out.println(this.getName() + " Terminated");
+    };
 
     @Override
     protected void initialize() {
+        this.subscribeBroadcast(TerminationBroadcast.class, terminateCallback);
         Timer timer = new Timer();
         timer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
-                if (timePassed < totalDuration) {
+                ticksPassed++;
+                if (ticksPassed * tickDuration < totalDuration) {
                     sendBroadcast(tickBroadcast);
-                    timePassed++;
-                    if(timePassed%1000==0)
-                        System.out.println(timePassed/1000);
+                    if(ticksPassed %200==0)
+                        System.out.println(ticksPassed /200);
+                    if(ticksPassed > 5997)
+                        System.out.println();
+
                 }
-                else if(timePassed == totalDuration) {
+                else if(ticksPassed * tickDuration >= totalDuration) {
                     sendBroadcast(new TerminationBroadcast());
                     terminate();
                 }

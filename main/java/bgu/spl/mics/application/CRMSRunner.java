@@ -35,7 +35,11 @@ public class CRMSRunner {
             student.defineTrainModels();
         }
 
-        LinkedList<Thread> threads = StartServices(input);
+        CPU[] cpus = input.getCPUS();
+        GPU[] gpus = input.getGPUS();
+
+        LinkedList<Thread> threads = StartServices(input,cpus,gpus);
+
         for (Thread thread : threads) {
             try {
                 thread.join();
@@ -43,7 +47,7 @@ public class CRMSRunner {
             }
         }
 
-        String outputString = createOutputString(input);
+        String outputString = createOutputString(input,cpus,gpus);
         File outputFile = new File("/home/guy/SPL/ass2/output.txt");
         try {
             FileWriter writer = new FileWriter("output.txt");
@@ -52,20 +56,18 @@ public class CRMSRunner {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
+        System.exit(0);
     }
 
 
-    private static LinkedList<Thread> StartServices(Input input) throws InterruptedException {
+    private static LinkedList<Thread> StartServices(Input input, CPU[] cpus, GPU[] gpus) throws InterruptedException {
 
         MessageBusImpl messageBus = MessageBusImpl.getInstance();
-        CPU[] cpus = input.getCPUS();
-        GPU[] gpus = input.getGPUS();
         Cluster cluster = new Cluster(gpus, cpus);
         LinkedList<Thread> threads = new LinkedList<Thread>();
 
         for (int i = 0; i < gpus.length; i++) {
-            Thread gpuThread = new Thread(new GPUService("gpu" + i, gpus[i]));
+            Thread gpuThread = new Thread(new GPUService("gpu" + i, gpus[i], input.getDuration()));
             threads.add(gpuThread);
             gpuThread.start();
         }
@@ -82,23 +84,17 @@ public class CRMSRunner {
             threads.add(studentThread);
             studentThread.start();
         }
-        ConfrenceInformation[] conferences = input.getConferences();
 
-        Thread conferencesThread0 = new Thread((new ConferenceService("conference", conferences[0])));
-        threads.add(conferencesThread0);
-        conferencesThread0.start();
+        ConfrenceInformation[] conferences = input.getConferences();
+        for (int i = 0; i < conferences.length; i++) {
+            Thread conferencesThread = new Thread((new ConferenceService("conference" + i, conferences[i])));
+            threads.add(conferencesThread);
+            conferencesThread.start();
+        }
 
         Thread ticksThread = new Thread(new TimeService(input.getTickTime(), input.getDuration()));
         ticksThread.start();
 
-        conferencesThread0.join();
-
-        for (int i = 1; i < conferences.length; i++) {
-            Thread conferencesThread = new Thread((new ConferenceService("conference" + i, conferences[i])));
-            threads.add(conferencesThread);
-            conferencesThread.start();
-            conferencesThread.join();
-        }
         return threads;
     }
 
@@ -120,7 +116,7 @@ public class CRMSRunner {
     }
 
 
-    public static String createOutputString(Input input) {
+    public static String createOutputString(Input input ,CPU [] cpus, GPU [] gpus) {
         String output = "{\n\t\"students\": [\n";
         for (Student student : input.getStudents()) {
             output += "\t\t{\n\t\t\t\"name\": \"" + student.getName() + "\",\n";
@@ -145,10 +141,10 @@ public class CRMSRunner {
         }
         output += "\t ],\n";
         int cpuTimeUsed = 0, gpuTimeUsed = 0, batchesProcessed = 0;
-        for (CPU cpu : input.getCPUS()) {
+        for (CPU cpu : cpus) {
             cpuTimeUsed += cpu.getTimeUsed();
         }
-        for (GPU gpu : input.getGPUS()) {
+        for (GPU gpu : gpus) {
             gpuTimeUsed += gpu.getTimeUsed();
             batchesProcessed += gpu.getBatchesProcessed();
         }
