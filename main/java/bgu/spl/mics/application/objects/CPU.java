@@ -29,8 +29,11 @@ public class CPU {
     }
 
     public void addDataBatch(DataBatch dataBatch){
-        db.add(dataBatch);
-        ticksTillEnd += (32/cores)*dataBatch.numberOfTicks();
+        synchronized (this) {
+            db.add(dataBatch);
+            ticksTillEnd += (32/cores)*dataBatch.numberOfTicks();
+        }
+
     }
 
     public int getTicksTillEnd(){
@@ -46,8 +49,11 @@ public class CPU {
     }
 
     public void finishProcess(){
-        db.removeFirst();
-        this.tick=0;
+        synchronized (this) {
+            ticksTillEnd -= firstBatchTicks();
+            db.removeFirst();
+            this.tick = 0;
+        }
     }
 
     public void incrementTimeUsed(){

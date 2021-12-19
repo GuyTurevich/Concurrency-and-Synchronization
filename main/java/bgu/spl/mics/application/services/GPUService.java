@@ -78,17 +78,21 @@ public class GPUService extends MicroService {
         if (isTraining && cluster.getGpuQueueSize(gpu) != 0) {
             tick++;
             if (gpu.getTickTimeToTrain() == tick) {
-                gpu.incrementTimeUsed();
-                tick = 0;
-                cluster.removeFirstFromQueue(gpu);
-                processedBatchCounter++;
-                gpu.incrementTotalProcessed();
+                synchronized (gpu) {
+                    gpu.incrementTimeUsed();
+                    tick = 0;
+                    cluster.removeFirstFromQueue(gpu);
+                    processedBatchCounter++;
+                    gpu.incrementTotalProcessed();
+                }
                 if (processedBatchCounter == numberOfBatches) {
-                    isTraining = false;
-                    processedBatchCounter = 0;
-                    model.setStatusToTrained();
-                    System.out.println(model.getName() + " Trained");
-                    this.complete(currTrainModelEvent,model);
+                    synchronized (this) {
+                        isTraining = false;
+                        processedBatchCounter = 0;
+                        model.setStatusToTrained();
+                        System.out.println(model.getName() + " Trained");
+                        this.complete(currTrainModelEvent, model);
+                    }
                 }
             }
         }
@@ -129,9 +133,9 @@ public class GPUService extends MicroService {
     }
 
     public void sendBatchesToCluster(Model model) {
-        int queueSize = cluster.getGpuQueueSize(gpu);
+        //int queueSize = cluster.getGpuQueueSize(gpu);
         synchronized (gpu) {
-            while (queueSize <= gpu.getDataBatchCapacity() && currentBatch < numberOfBatches) {
+            while (cluster.getGpuQueueSize(gpu) <= gpu.getDataBatchCapacity() && currentBatch < numberOfBatches) {
                 DataBatch dataBatch = new DataBatch(model.getData().getType(), gpu);
                 cluster.receiveBatchFromGpu(dataBatch);
                 currentBatch++;
