@@ -23,7 +23,7 @@ public class Data {
     }
 
     public Type getTypeByString(String type){
-        if (type.equals("Images")) return Type.Images;
+        if (type.equals("images")) return Type.Images;
         else if (type.equals("Text")) return Type.Text;
         else return Type.Tabular;
     }
