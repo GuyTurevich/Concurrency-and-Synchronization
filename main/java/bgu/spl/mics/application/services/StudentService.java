@@ -34,28 +34,25 @@ public class StudentService extends MicroService {
     }
 
     private Callback<TickBroadcast> tickBroadcastCallback = (TickBroadcast tickBroadcast) -> {
-        if (currentFuture == null) {
-            synchronized (this) {
-                currentModel = student.getNextModel();
-            }
+        synchronized (this) {
+            if (currentFuture == null) {
+                    currentModel = student.getNextModel();
                 if (currentModel != null)
                     currentFuture = this.sendEvent(new TrainModelEvent(currentModel));
-        }
-        else if (currentFuture.isDone()) {
-            String status = currentModel.getStatusString();
+            } else if (currentFuture.isDone()) {
+                String status = currentModel.getStatusString();
 
-            if (status.equals("Trained")) {
-                currentFuture = this.sendEvent(new TestModelEvent(student.isMsc(), currentModel));
-            }
-            else if (status.equals("Tested")) {
-                if (currentModel.isResultGood()){
-                    System.out.println("PUBLISHING");
-                    this.sendEvent(new PublishResultsEvent(currentModel));
+                if (status.equals("Trained")) {
+                    currentFuture = this.sendEvent(new TestModelEvent(student.isMsc(), currentModel));
+                } else if (status.equals("Tested")) {
+                    if (currentModel.isResultGood()) {
+                        System.out.println("PUBLISHING");
+                        this.sendEvent(new PublishResultsEvent(currentModel));
+                    }
+                    currentFuture = null;
                 }
-                currentFuture = null;
             }
-        }
-        };
+        }};
 
     private Callback<PublishConferenceBroadcast> publishConferenceCallback =
             (PublishConferenceBroadcast publishConferenceBroadcast) -> {
